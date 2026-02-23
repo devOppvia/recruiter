@@ -1,73 +1,51 @@
-import React from 'react';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import { ArrowLeft, Share2, Linkedin, Instagram, Youtube, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Share2, Linkedin, Instagram, Youtube, HelpCircle, CheckCircle2 } from 'lucide-react';
 
 const Step4Socials = ({ onNext, onBack, data, updateData }) => {
     return (
-        <div className="space-y-10">
-            {/* Section: Digital Footprint */}
-            <div className="space-y-8">
-                <div className="flex items-center gap-3 mb-5">
-                    <div className="p-2 rounded-lg bg-brand-primary/5 text-brand-primary">
-                        <Share2 size={18} strokeWidth={2.5} />
+        <div className="space-y-8 animate-fadeIn">
+            {/* Social Links */}
+            <div className="space-y-5">
+                <div className="flex items-center gap-2.5 mb-1">
+                    <div className="p-2 rounded-lg bg-brand-primary/8 text-brand-primary">
+                        <Share2 size={18} strokeWidth={2} />
                     </div>
-                    <h3 className="text-base font-bold text-[#101828]">Omni-channel Presence</h3>
+                    <h3 className="text-[15px] font-bold text-brand-dark">Social Presence</h3>
                 </div>
 
-                <div className="space-y-6">
-                    <div className="relative group/social">
-                        <Input
-                            label="LinkedIn Organization URL"
-                            placeholder="linkedin.com/company/acme"
-                            icon={Linkedin}
-                            value={data.linkedin || ''}
-                            onChange={(e) => updateData({ linkedin: e.target.value })}
-                        />
-                        <div className="absolute right-0 top-0 h-10 flex items-center pr-1">
-                            <div className="px-2 py-0.5 rounded-md bg-[#f2f4f7] text-[9px] font-black text-[#667085] uppercase tracking-wider border border-[#eaecf0]">Recommended</div>
+                <div className="space-y-4">
+                    <div className="relative">
+                        <Input label="LinkedIn Organization URL" placeholder="linkedin.com/company/acme" icon={Linkedin}
+                            value={data.linkedin || ''} onChange={(e) => updateData({ linkedin: e.target.value })} />
+                        <div className="absolute right-0 top-0">
+                            <span className="text-[10px] font-semibold text-brand-primary bg-brand-primary/8 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <CheckCircle2 size={10} /> Recommended
+                            </span>
                         </div>
                     </div>
 
-                    <Input
-                        label="Instagram Handle"
-                        placeholder="@acme_corp"
-                        icon={Instagram}
-                        value={data.instagram || ''}
-                        onChange={(e) => updateData({ instagram: e.target.value })}
-                    />
+                    <Input label="Instagram Handle" placeholder="@acme_corp" icon={Instagram}
+                        value={data.instagram || ''} onChange={(e) => updateData({ instagram: e.target.value })} />
 
-                    <Input
-                        label="YouTube Channel"
-                        placeholder="youtube.com/c/acmecorp"
-                        icon={Youtube}
-                        value={data.youtube || ''}
-                        onChange={(e) => updateData({ youtube: e.target.value })}
-                    />
+                    <Input label="YouTube Channel" placeholder="youtube.com/c/acmecorp" icon={Youtube}
+                        value={data.youtube || ''} onChange={(e) => updateData({ youtube: e.target.value })} />
                 </div>
             </div>
 
-            {/* Verification Tip */}
-            <div className="p-5 bg-brand-primary/[0.03] border border-brand-primary/10 rounded-2xl flex gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white border border-brand-primary/10 flex items-center justify-center text-brand-primary shadow-sm shrink-0">
-                    <HelpCircle size={20} strokeWidth={2.5} />
-                </div>
-                <div className="space-y-1.5 pt-0.5">
-                    <p className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em]">Why Provide This?</p>
-                    <p className="text-xs text-[#667085] font-medium leading-relaxed">
-                        Linking your digital profiles accelerates the verification process by up to 48 hours and increases your trust score with potential partners.
-                    </p>
-                </div>
+            {/* Tip */}
+            <div className="flex items-start gap-3 p-4 bg-brand-primary/5 border border-brand-primary/10 rounded-xl">
+                <HelpCircle size={16} className="text-brand-primary mt-0.5 shrink-0" />
+                <p className="text-xs text-[#667085] leading-relaxed">
+                    Linking your social profiles accelerates the verification process and increases your trust score with potential partners.
+                </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button variant="ghost" className="flex-1 order-2 sm:order-1" onClick={onBack}>
-                    <ArrowLeft size={18} className="mr-2" />
-                    Back
+            <div className="flex gap-3 pt-4">
+                <Button variant="ghost" className="flex-1" onClick={onBack}>
+                    <ArrowLeft size={16} className="mr-1.5" /> Back
                 </Button>
-                <Button size="lg" className="flex-[2] order-1 sm:order-2 shadow-[0_12px_24px_-8px_rgba(12,165,165,0.4)]" onClick={onNext}>
-                    Complete Registration
-                </Button>
+                <Button size="lg" className="flex-2" onClick={onNext}>Complete Registration</Button>
             </div>
         </div>
     );

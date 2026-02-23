@@ -42,27 +42,27 @@ const RegistrationWizard = () => {
 
     const stepsDetails = {
         1: {
-            title: "Create Executive Account",
+            title: "Executive Account",
             subtitle: "Set up your recruiter profile and secure your access.",
             component: Step1Account
         },
         2: {
-            title: "Secure Your Identity",
+            title: "Identity Verification",
             subtitle: "Please verify your email and phone number to continue.",
             component: Step2Verification
         },
         3: {
-            title: "Tell us about your Company",
+            title: "Company Profile",
             subtitle: "Help potential interns understand your organization's mission.",
             component: Step2Company
         },
         4: {
-            title: "Location Preference",
-            subtitle: "Where do you hire? Set your primary and branch locations.",
+            title: "Global Presence",
+            subtitle: "Where do you operate? Set your primary and branch locations.",
             component: Step3Location
         },
         5: {
-            title: "Social Presence",
+            title: "Digital Ecosystem",
             subtitle: "Connect your professional circles and brand profile.",
             component: Step4Socials
         }
