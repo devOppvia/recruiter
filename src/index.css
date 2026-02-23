@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+    /* Brand Colors - Extracted from Old Panel Teal Theme */
+    --brand-primary: #1f4e4e;
+    --brand-primary-light: #316d6d;
+    --brand-primary-dark: #143636;
+    --brand-gradient: linear-gradient(135deg, #316d6d 0%, #1f4e4e 100%);
+
+    /* Soothing Palette - Based on new Reference */
+    --bg-app: #f2f4f7;
+    --bg-sidebar: #f9fafb;
+    --surface-card: #ffffff;
+    --text-main: #101828;
+    --text-label: #344054;
+    --text-muted: #667085;
+    --border-soft: #d0d5dd;
+
+    /* Radius & Shadows */
+    --radius-xl: 1.5rem;
+    --radius-lg: 1rem;
+    --radius-card: 2rem;
+    --shadow-soothing: 0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08);
+}
+
+@theme {
+    --color-brand-primary: var(--brand-primary);
+    --color-brand-light: var(--brand-primary-light);
+    --color-brand-dark: var(--brand-primary-dark);
+}
+
+body {
+    background-color: var(--bg-soothing);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism Utility */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Premium Button Gradient */
+.btn-brand {
+    background: var(--brand-gradient);
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-brand:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(31, 78, 78, 0.2);
+}
