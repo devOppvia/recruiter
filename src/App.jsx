@@ -1,24 +1,41 @@
-import { useState } from 'react';
-import RegistrationWizard from './pages/Onboarding/RegistrationWizard';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Auth/Login';
+import RegistrationWizard from './pages/Onboarding/RegistrationWizard';
+import StatusPending from './pages/Onboarding/StatusPending';
+import DashboardLayout from './components/layout/DashboardLayout';
+import OverviewPage from './pages/Dashboard/OverviewPage';
+import EmptyOverviewPage from './pages/Dashboard/EmptyOverviewPage';
+import JobPostingPage from './pages/Dashboard/JobPostingPage';
+import CandidatesPage from './pages/Dashboard/CandidatesPage';
+import ComingSoonResumeBank from './pages/Dashboard/ComingSoonResumeBank';
+import SubscriptionPage from './pages/Dashboard/SubscriptionPage';
+import SupportPage from './pages/Dashboard/SupportPage';
+import ProfilePage from './pages/Dashboard/ProfilePage';
 
 function App() {
-  const [view, setView] = useState('onboarding');
-
   return (
-    <div>
-      {/* Dev View Switcher */}
-      <div className="fixed bottom-5 right-5 z-50 bg-white rounded-full shadow-lg border border-[#e5e7eb] p-1 flex gap-1">
-        <button onClick={() => setView('login')}
-          className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${view === 'login' ? 'bg-brand-primary text-white' : 'text-[#667085] hover:bg-[#f3f4f6]'
-            }`}>Login</button>
-        <button onClick={() => setView('onboarding')}
-          className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${view === 'onboarding' ? 'bg-brand-primary text-white' : 'text-[#667085] hover:bg-[#f3f4f6]'
-            }`}>Onboarding</button>
-      </div>
+    <Routes>
+      {/* Auth Routes */}
+      <Route path="/" element={<Login />} />
+      <Route path="/register" element={<RegistrationWizard />} />
+      <Route path="/under-review" element={<StatusPending />} />
 
-      {view === 'onboarding' ? <RegistrationWizard /> : <Login />}
-    </div>
+      {/* Dashboard Routes */}
+      <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route index element={<Navigate to="overview" replace />} />
+        <Route path="overview" element={<OverviewPage />} />
+        <Route path="overview-empty" element={<EmptyOverviewPage />} />
+        <Route path="jobs" element={<JobPostingPage />} />
+        <Route path="candidates" element={<CandidatesPage />} />
+        <Route path="resume-bank" element={<ComingSoonResumeBank />} />
+        <Route path="subscription" element={<SubscriptionPage />} />
+        <Route path="support" element={<SupportPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+      </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
 }
 

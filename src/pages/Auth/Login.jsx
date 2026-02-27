@@ -1,99 +1,184 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import { Mail, Lock, Eye, EyeOff, Github } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Login = () => {
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 2000);
+        // Mock authentication success
+        setTimeout(() => {
+            setIsLoading(false);
+            navigate('/dashboard');
+        }, 1500);
     };
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-end relative overflow-hidden">
+        <div className="min-h-screen w-full flex bg-[#F9FAFB] overflow-hidden">
+            {/* Left: Branding Spotlight */}
+            <div className="hidden lg:flex w-1/2 relative bg-brand-primary p-16 flex-col justify-between overflow-hidden">
+                {/* Decorative Elements */}
+                <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-[-5%] left-[-5%] w-[300px] h-[300px] bg-brand-primary-light/20 rounded-full blur-2xl" />
 
-            {/* Full-page background image */}
-            <img
-                src="/images/login_3d_illustration_1771844210617.png"
-                alt="3D Illustration"
-                className="absolute inset-0 w-full h-full object-cover"
-            />
-            {/* Subtle overlay for readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/40 via-transparent to-white/80" />
-
-            {/* Right-aligned Floating Form Panel */}
-            <div className="relative z-10 w-full max-w-[540px] bg-white rounded-3xl m-6 lg:m-10 p-10 lg:p-14 flex flex-col justify-center shadow-2xl">
-                {/* Logo */}
-                <div className="mb-10">
-                    <div className="flex items-center gap-2.5 mb-8">
-                        <div className="w-9 h-9 rounded-lg bg-brand-primary flex items-center justify-center text-white font-bold text-lg">O</div>
-                        <span className="text-xl font-bold text-brand-dark tracking-tight">Oppvia</span>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative z-10 flex items-center gap-3"
+                >
+                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-brand-primary font-black text-2xl shadow-premium">
+                        O
                     </div>
-                    <h1 className="text-4xl font-bold text-brand-dark leading-tight">Create account</h1>
+                    <span className="text-2xl font-black text-white tracking-tighter">Oppvia</span>
+                </motion.div>
+
+                <div className="relative z-10 space-y-8">
+                    <motion.div
+                        initial={{ opacity: 0, x: -30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 w-fit inline-flex items-center gap-2"
+                    >
+                        <Sparkles size={16} className="text-white/60" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/80">Premium Talent Ecosystem</span>
+                    </motion.div>
+
+                    <motion.h2
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-7xl font-black text-white leading-[0.9] tracking-tighter text-editorial"
+                    >
+                        Elevating <br />
+                        <span className="text-white/40 italic">The Future</span> <br />
+                        Of Recruitment
+                    </motion.h2>
+
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-lg text-white/60 font-bold max-w-md leading-relaxed"
+                    >
+                        Discover, manage, and scale your workforce with the world's most sophisticated recruitment platform.
+                    </motion.p>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <Input
-                        placeholder="Email address"
-                        type="email"
-                        icon={Mail}
-                        required
-                    />
-                    <div className="relative">
-                        <Input
-                            placeholder="Password"
-                            type={showPassword ? 'text' : 'password'}
-                            icon={Lock}
-                            required
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-brand-primary transition-colors"
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="relative z-10 pt-10 border-t border-white/10"
+                >
+                    <div className="flex gap-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="w-12 h-12 rounded-full border-2 border-white/20 overflow-hidden">
+                                <img src={`https://i.pravatar.cc/150?u=${i}`} alt="user" className="w-full h-full object-cover" />
+                            </div>
+                        ))}
+                        <div className="flex flex-col justify-center">
+                            <p className="text-xs font-black text-white tracking-widest uppercase">Trusted by 500+</p>
+                            <p className="text-[10px] font-bold text-white/40 uppercase">Global Enterprises</p>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+
+            {/* Right: Interaction Panel */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-20 relative text-black">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="w-full max-w-[480px] space-y-12"
+                >
+                    <div className="space-y-4">
+                        <div className="w-14 h-1 px-4 bg-brand-primary/10 rounded-full mb-10 hidden lg:block" />
+                        <h1 className="text-5xl font-black text-brand-primary tracking-tighter font-editorial">
+                            Welcome <span className="text-brand-primary/30">Back</span>
+                        </h1>
+                        <p className="text-sm font-bold text-brand-primary/40 leading-relaxed max-w-sm">
+                            Enter your credentials to access your administrative dashboard and premium talent pool.
+                        </p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2 text-black">
+                            <Input
+                                label="Official Email"
+                                placeholder="name@company.com"
+                                type="email"
+                                icon={Mail}
+                                required
+                            />
+                        </div>
+
+                        <div className="space-y-2 text-black">
+                            <Input
+                                label="Security Code"
+                                placeholder="••••••••"
+                                type={showPassword ? 'text' : 'password'}
+                                icon={Lock}
+                                required
+                                rightAction={
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="flex items-center justify-center"
+                                    >
+                                        {showPassword ? <EyeOff size={18} strokeWidth={3} /> : <Eye size={18} strokeWidth={3} />}
+                                    </button>
+                                }
+                            />
+                            <div className="flex justify-end pt-2">
+                                <button type="button" className="text-[10px] font-black text-brand-primary/40 uppercase tracking-widest hover:text-brand-primary transition-colors">
+                                    Forgot Access Code?
+                                </button>
+                            </div>
+                        </div>
+
+                        <Button
+                            type="submit"
+                            size="lg"
+                            className="w-full h-16 rounded-[24px] bg-brand-primary text-white font-black uppercase tracking-[0.2em] text-xs shadow-premium hover:shadow-hover group"
+                            isLoading={isLoading}
                         >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
+                            <span className="flex items-center justify-center gap-3">
+                                {isLoading ? 'Verifying...' : 'Authenticate Access'}
+                                {!isLoading && <ArrowRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />}
+                            </span>
+                        </Button>
+                    </form>
+
+                    <div className="pt-8 border-t border-brand-primary/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="flex flex-col">
+                            <p className="text-[10px] font-black text-brand-primary/20 uppercase tracking-widest mb-1">New to Oppvia?</p>
+                            <button
+                                onClick={() => navigate('/register')}
+                                className="text-sm font-black text-brand-primary flex items-center gap-2 group outline-none"
+                            >
+                                Create Recruiter Profile
+                                <div className="w-5 h-5 rounded-full bg-brand-primary/5 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all shadow-soft group-focus:ring-2 group-focus:ring-brand-primary/20">
+                                    <ArrowRight size={10} strokeWidth={4} />
+                                </div>
+                            </button>
+                        </div>
+                        <div className="text-left sm:text-right">
+                            <p className="text-[10px] font-black text-brand-primary/20 uppercase tracking-widest mb-1">Security Standards</p>
+                            <p className="text-[10px] font-bold text-brand-primary/40 max-w-[140px]">AES-256 encrypted access & identity verification.</p>
+                        </div>
                     </div>
+                </motion.div>
 
-                    <Button type="submit" size="lg" className="w-full" isLoading={isLoading}>
-                        Create account
-                    </Button>
-                </form>
-
-                {/* Social Login */}
-                {/* <div className="mt-8">
-                    <div className="relative my-6">
-                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#e5e7eb]"></div></div>
-                        <div className="relative flex justify-center text-sm"><span className="bg-white px-3 text-[#9ca3af]">or sign up with</span></div>
-                    </div>
-
-                    <div className="flex justify-center gap-3">
-                        <button className="w-12 h-12 flex items-center justify-center border border-[#e5e7eb] rounded-xl text-[#475467] hover:bg-[#f9fafb] hover:border-brand-primary/30 transition-all text-sm font-bold">
-                            G
-                        </button>
-                        <button className="w-12 h-12 flex items-center justify-center border border-[#e5e7eb] rounded-xl text-[#475467] hover:bg-[#f9fafb] hover:border-brand-primary/30 transition-all">
-                            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z" /></svg>
-                        </button>
-                        <button className="w-12 h-12 flex items-center justify-center border border-[#e5e7eb] rounded-xl text-[#475467] hover:bg-[#f9fafb] hover:border-brand-primary/30 transition-all">
-                            <Github size={18} />
-                        </button>
-                    </div>
-                </div> */}
-
-                {/* Terms & Login Link */}
-                <p className="mt-6 text-center text-xs text-[#667085] leading-relaxed">
-                    By creating an account you agree to Oppvia's<br />
-                    <button className="text-brand-primary font-semibold hover:underline">Terms of Services</button> and <button className="text-brand-primary font-semibold hover:underline">Privacy Policy</button>.
-                </p>
-
-                <p className="mt-6 text-center text-sm text-[#667085]">
-                    Have an account? <button className="text-brand-primary font-semibold hover:underline">Log in</button>
-                </p>
+                {/* Mobile Background Elements */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/5 rounded-full blur-3xl lg:hidden -z-10" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-brand-primary-light/5 rounded-full blur-2xl lg:hidden -z-10" />
             </div>
         </div>
     );

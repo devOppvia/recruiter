@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import OnboardingLayout from './OnboardingLayout';
 import Step1Account from './Step1Account';
 import Step2Verification from './Step2Verification';
@@ -16,14 +16,19 @@ const RegistrationWizard = () => {
         email: '',
         password: '',
         companyName: '',
+        companyLogo: '',
         industry: '',
         companySize: '',
+        foundedYear: '',
+        registrationNumber: '',
         website: '',
         description: '',
         address: '',
         city: '',
         state: '',
+        zipCode: '',
         country: '',
+        branches: [],
         linkedin: '',
         instagram: '',
         youtube: '',
