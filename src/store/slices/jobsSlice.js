@@ -131,6 +131,8 @@ const initialState = {
         salary: { minAmount: '', maxAmount: '' },
         skills: [],
         benefits: [],
+        jobCategoryId: '',
+        jobSubCategoryId: '',
         description: '',
         otherInfo: '',
     },

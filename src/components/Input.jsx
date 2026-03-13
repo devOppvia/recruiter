@@ -1,6 +1,7 @@
+import { forwardRef } from 'react';
 import { cn } from '../utils/cn';
 
-const Input = ({
+const Input = forwardRef(({
     label,
     error,
     className,
@@ -9,7 +10,7 @@ const Input = ({
     rightIcon: RightIcon,
     rightAction,
     ...props
-}) => {
+}, ref) => {
     return (
         <div className="flex flex-col gap-2 w-full group/input">
             {label && (
@@ -24,6 +25,7 @@ const Input = ({
                     </div>
                 )}
                 <input
+                    ref={ref}
                     type={type}
                     className={cn(
                         'w-full bg-brand-primary/5 border border-brand-primary/10 rounded-[20px] outline-none transition-all duration-300',
@@ -57,6 +59,7 @@ const Input = ({
             )}
         </div>
     );
-};
+});
 
+Input.displayName = 'Input';
 export default Input;

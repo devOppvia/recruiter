@@ -4,20 +4,70 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { motion } from 'framer-motion';
+import { copmanySignInApi } from '../../helper/api';
+import toast from 'react-hot-toast';
 
 const Login = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
+    const [errors, setErrors] = useState({});
 
-    const handleSubmit = (e) => {
+    const validate = () => {
+        const newErrors = {};
+        if (!formData.email) {
+            newErrors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = "Invalid email format";
+        }
+        
+        if (!formData.password) {
+            newErrors.password = "Password is required";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!validate()) {
+            return;
+        }
+
         setIsLoading(true);
-        // Mock authentication success
-        setTimeout(() => {
+        try {
+            const response = await copmanySignInApi(formData);
+            
+            if (response.status) {
+                toast.success(response.message || "Welcome to Oppvia");
+                
+                // Store authentication critical data
+                if (response.data.accessToken) {
+                    localStorage.setItem("token", response.data.accessToken);
+                    localStorage.setItem("accessToken", response.data.accessToken);
+                }
+                
+                if (response.data.userData) {
+                    localStorage.setItem("userData", JSON.stringify(response.data.userData));
+                    localStorage.setItem("companyId", response.data.userData.id);
+                }
+
+                navigate('/dashboard/overview');
+            } else {
+                toast.error(response.message || "Authentication failed");
+            }
+        } catch (error) {
+            console.error("Login Error:", error);
+            toast.error(error || "Invalid credentials. Please verify your access.");
+        } finally {
             setIsLoading(false);
-            navigate('/dashboard');
-        }, 1500);
+        }
     };
 
     return (
@@ -115,7 +165,9 @@ const Login = () => {
                                 placeholder="name@company.com"
                                 type="email"
                                 icon={Mail}
-                                required
+                                value={formData.email}
+                                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                                error={errors.email}
                             />
                         </div>
 
@@ -125,7 +177,9 @@ const Login = () => {
                                 placeholder="••••••••"
                                 type={showPassword ? 'text' : 'password'}
                                 icon={Lock}
-                                required
+                                value={formData.password}
+                                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                                error={errors.password}
                                 rightAction={
                                     <button
                                         type="button"

@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import {
     Video,
@@ -7,16 +6,18 @@ import {
     Clock,
     MoreVertical,
     ExternalLink,
-    Search
 } from 'lucide-react';
 import Badge from '../../components/Badge';
 import Button from '../../components/Button';
 
-const InterviewTab = () => {
-    const { candidates } = useSelector((state) => state.candidates);
-
+const InterviewTab = ({ candidates = [] }) => {
     // Filter candidates who have an interview scheduled
-    const interviews = candidates.filter(c => c.status === 'interview_scheduled' && c.interview);
+    // Note: In CandidatesPage, status is 'interview', but here it checks 'interview_scheduled'
+    // Let's make it consistent with CandidatesPage's data structure
+    const interviews = candidates.filter(c => 
+        (c.candidateStatus?.toLowerCase() === 'interview' || c.candidateStatus === 'interview_scheduled') && 
+        c.interview && c.interview.length > 0
+    );
 
     const container = {
         hidden: { opacity: 0 },
@@ -54,83 +55,87 @@ const InterviewTab = () => {
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-            {interviews.map((c) => (
-                <motion.div
-                    key={c.id}
-                    variants={item}
-                    className="group bg-white rounded-[40px] border border-brand-primary/5 shadow-soft hover:shadow-premium transition-all duration-500 overflow-hidden flex flex-col"
-                >
-                    <div className="p-8 pb-4 flex-1 space-y-6">
-                        {/* Header */}
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-brand-primary/5 flex items-center justify-center text-brand-primary text-lg font-black shrink-0">
-                                    {c.name.charAt(0)}
+            {interviews.map((c) => {
+                const latestInterview = c.interview[c.interview.length - 1];
+                return (
+                    <motion.div
+                        key={c.id}
+                        variants={item}
+                        className="group bg-white rounded-[40px] border border-brand-primary/5 shadow-soft hover:shadow-premium transition-all duration-500 overflow-hidden flex flex-col"
+                    >
+                        <div className="p-8 pb-4 flex-1 space-y-6">
+                            {/* Header */}
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-brand-primary/5 flex items-center justify-center text-brand-primary text-lg font-black shrink-0">
+                                        {c.intern?.fullName?.charAt(0) || c.name?.charAt(0)}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h3 className="text-sm font-black text-brand-primary tracking-tight truncate">{c.intern?.fullName || c.name}</h3>
+                                        <p className="text-[10px] font-bold text-brand-primary/30 uppercase tracking-widest truncate">{c.job?.jobTitle || c.position}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="text-sm font-black text-brand-primary tracking-tight truncate">{c.name}</h3>
-                                    <p className="text-[10px] font-bold text-brand-primary/30 uppercase tracking-widest truncate">{c.position}</p>
+                                <Badge status={latestInterview.interviewStatus === 'YES' ? 'confirmed' : 'pending'} size="sm" className="rounded-lg px-2 py-0.5 text-[9px]" />
+                            </div>
+
+                            {/* Interview Details */}
+                            <div className="bg-brand-primary/5 rounded-3xl p-5 space-y-4 border border-brand-primary/5">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-brand-primary shadow-soft">
+                                        <Calendar size={18} strokeWidth={2.5} />
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <p className="text-[9px] font-black text-brand-primary/20 uppercase tracking-widest">Date</p>
+                                        <p className="text-[11px] font-black text-brand-primary/80 uppercase mb-0.5">
+                                            {latestInterview.interviewDate ? new Date(latestInterview.interviewDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-brand-primary shadow-soft">
+                                        <Clock size={18} strokeWidth={2.5} />
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <p className="text-[9px] font-black text-brand-primary/20 uppercase tracking-widest">Time</p>
+                                        <p className="text-[11px] font-black text-brand-primary/80 uppercase mb-0.5">
+                                            {latestInterview.interviewTime || 'N/A'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-brand-primary shadow-soft">
+                                        <Video size={18} strokeWidth={2.5} />
+                                    </div>
+                                    <div className="space-y-0.5 flex-1 min-w-0">
+                                        <p className="text-[9px] font-black text-brand-primary/20 uppercase tracking-widest">Mode</p>
+                                        <p className="text-[11px] font-black text-brand-primary/80 uppercase truncate">
+                                            {latestInterview.interviewType || 'N/A'}
+                                        </p>
+                                    </div>
+                                    <button className="w-8 h-8 rounded-lg bg-brand-primary/5 flex items-center justify-center text-brand-primary/40 hover:bg-brand-primary hover:text-white transition-all">
+                                        <ExternalLink size={14} strokeWidth={2.5} />
+                                    </button>
                                 </div>
                             </div>
-                            <Badge status={c.interview.response === 'confirmed' ? 'confirmed' : 'pending'} size="sm" className="rounded-lg px-2 py-0.5 text-[9px]" />
                         </div>
 
-                        {/* Interview Details */}
-                        <div className="bg-brand-primary/5 rounded-3xl p-5 space-y-4 border border-brand-primary/5">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-brand-primary shadow-soft">
-                                    <Calendar size={18} strokeWidth={2.5} />
-                                </div>
-                                <div className="space-y-0.5">
-                                    <p className="text-[9px] font-black text-brand-primary/20 uppercase tracking-widest">Date</p>
-                                    <p className="text-[11px] font-black text-brand-primary/80 uppercase mb-0.5">
-                                        {new Date(c.interview.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-brand-primary shadow-soft">
-                                    <Clock size={18} strokeWidth={2.5} />
-                                </div>
-                                <div className="space-y-0.5">
-                                    <p className="text-[9px] font-black text-brand-primary/20 uppercase tracking-widest">Time</p>
-                                    <p className="text-[11px] font-black text-brand-primary/80 uppercase mb-0.5">
-                                        {c.interview.time}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-brand-primary shadow-soft">
-                                    <Video size={18} strokeWidth={2.5} />
-                                </div>
-                                <div className="space-y-0.5 flex-1 min-w-0">
-                                    <p className="text-[9px] font-black text-brand-primary/20 uppercase tracking-widest">Mode</p>
-                                    <p className="text-[11px] font-black text-brand-primary/80 uppercase truncate">
-                                        {c.interview.mode}
-                                    </p>
-                                </div>
-                                <button className="w-8 h-8 rounded-lg bg-brand-primary/5 flex items-center justify-center text-brand-primary/40 hover:bg-brand-primary hover:text-white transition-all">
-                                    <ExternalLink size={14} strokeWidth={2.5} />
-                                </button>
-                            </div>
+                        {/* Footer Actions */}
+                        <div className="px-8 py-6 bg-brand-primary/2 border-t border-brand-primary/5 flex gap-2">
+                            <Button className="flex-1 rounded-2xl h-12 font-black uppercase tracking-widest text-[9px] shadow-soft">
+                                Join Link
+                            </Button>
+                            <Button variant="ghost" className="w-12 h-12 rounded-2xl bg-white border border-brand-primary/5 flex items-center justify-center text-brand-primary/40 p-0">
+                                <MoreVertical size={18} strokeWidth={3} />
+                            </Button>
                         </div>
-                    </div>
-
-                    {/* Footer Actions */}
-                    <div className="px-8 py-6 bg-brand-primary/2 border-t border-brand-primary/5 flex gap-2">
-                        <Button className="flex-1 rounded-2xl h-12 font-black uppercase tracking-widest text-[9px] shadow-soft">
-                            Join Link
-                        </Button>
-                        <Button variant="ghost" className="w-12 h-12 rounded-2xl bg-white border border-brand-primary/5 flex items-center justify-center text-brand-primary/40 p-0">
-                            <MoreVertical size={18} strokeWidth={3} />
-                        </Button>
-                    </div>
-                </motion.div>
-            ))}
+                    </motion.div>
+                );
+            })}
         </motion.div>
     );
 };
 
 export default InterviewTab;
+
