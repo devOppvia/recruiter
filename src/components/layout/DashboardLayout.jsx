@@ -21,8 +21,13 @@ import {
 } from "lucide-react";
 import Button from "../Button";
 import NotificationDropdown from "../NotificationDropdown";
-import { getNotificationsApi } from "../../helper/api";
+import {
+  getCompanyDetailsApi,
+  getCompanyProfileDetailsApi,
+  getNotificationsApi,
+} from "../../helper/api";
 import { setNotifications } from "../../store/slices/notificationSlice";
+import { updateCompanyDetails } from "../../store/slices/authSlice";
 
 const LAYOUT_KEY = "oppvia_layout_mode";
 
@@ -69,9 +74,19 @@ const DashboardLayout = () => {
     }
   };
 
-  console.log("user is. : ", user);
+  const getCompanyDetail = async () => {
+    try {
+      const response = await getCompanyProfileDetailsApi(companyId);
+      if (response.status) {
+        dispatch(updateCompanyDetails(response.data));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
+    getCompanyDetail();
     getNotifications();
   }, []);
   const navItems = [
@@ -493,7 +508,7 @@ const DashboardLayout = () => {
             </button> */}
 
             <div className="flex relative items-center gap-2 lg:gap-3 lg:pl-3 lg:border-l lg:border-brand-primary/10 lg:ml-1 pr-1">
-              <div 
+              <div
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                 className="text-right hidden 2xl:block cursor-pointer select-none"
               >
@@ -504,7 +519,7 @@ const DashboardLayout = () => {
                   Recruiter
                 </p>
               </div>
-              <div 
+              <div
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                 className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-linear-to-br from-brand-primary to-brand-primary-light flex items-center justify-center text-white/90 font-black text-[11px] lg:text-[12px] shadow-soft ring-2 lg:ring-4 ring-brand-primary/5 cursor-pointer hover:scale-105 active:scale-95 transition-all"
               >
@@ -516,8 +531,6 @@ const DashboardLayout = () => {
               >
                 {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
-
-              
 
               <AnimatePresence>
                 {profileMenuOpen && (
@@ -562,7 +575,11 @@ const DashboardLayout = () => {
                           className="w-full flex items-center gap-3 px-4 py-3 rounded-[24px] text-sm font-bold text-brand-primary/60 hover:text-red-500 hover:bg-red-50 hover:shadow-soft transition-all group"
                         >
                           <div className="w-8 h-8 rounded-xl bg-brand-primary/5 group-hover:bg-red-500/10 flex items-center justify-center text-brand-primary/60 group-hover:text-red-500 transition-colors">
-                            <LogOut size={16} strokeWidth={2.5} className="group-hover:-translate-x-0.5 transition-transform" />
+                            <LogOut
+                              size={16}
+                              strokeWidth={2.5}
+                              className="group-hover:-translate-x-0.5 transition-transform"
+                            />
                           </div>
                           <span>Sign Out</span>
                         </button>

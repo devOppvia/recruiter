@@ -192,7 +192,7 @@ const CreateJobWizard = () => {
       if (response.status && response.data?.length > 0) {
         // Assuming the first active one is what we need
         const active = response.data[0];
-        setActiveSubscriptionId(active.id);
+        setCurrentPlanId(active.id);
       }
     } catch (error) {
       console.error("Fetch Subscription Error:", error);
@@ -428,7 +428,7 @@ const CreateJobWizard = () => {
         jobCategoryId: draft.jobCategoryId,
         jobSubCategoryId: draft.jobSubCategoryId,
         jobTitle: draft.title,
-        jobType: draft.workType, // Matches values like 'REMOTE'
+        jobType: draft.workType.toUpperCase(), // Matches values like 'REMOTE'
         location: locationString,
         city: geoInfo.city,
         state: geoInfo.state,

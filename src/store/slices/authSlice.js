@@ -1,16 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    user: {
-        id: 'comp_001',
-        companyName: 'Acme Corporation',
-        email: 'contact@acmecorp.com',
-        logo: null,
-        industry: 'Technology',
-        companySize: '51-200',
-        plan: 'Growth',
-    },
-    isAuthenticated: true,
+    user: localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData")) : {},
+    isAuthenticated: localStorage.getItem("token") ? true : false,
 };
 
 const authSlice = createSlice({
@@ -28,8 +20,11 @@ const authSlice = createSlice({
         updateProfile: (state, action) => {
             state.user = { ...state.user, ...action.payload };
         },
+        updateCompanyDetails: (state, action) => {
+            state.user = { ...state.user, ...action.payload };
+        },
     },
 });
 
-export const { login, logout, updateProfile } = authSlice.actions;
+export const { login, logout, updateProfile,updateCompanyDetails } = authSlice.actions;
 export default authSlice.reducer;

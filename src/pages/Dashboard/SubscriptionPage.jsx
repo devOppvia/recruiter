@@ -48,8 +48,8 @@ const planBgColors = {
 };
 const featureLabels = {
   expireDaysPackage: "Expire Days Package",
-  jobPostingLimit: "Job Posting Limit",
-  candidateAccess: "Candidate Access",
+  numberOfJobPosting: "Job Posting Limit",
+  numberOfResumeAccess: "Candidate Access",
   jobDaysActive: "Job Days Active",
   numberOfResumeAccess: "Number Of Resume Access",
 };
@@ -57,7 +57,7 @@ const featureLabels = {
 const featureTooltips = {
   expireDaysPackage: "Expire Days Package",
   jobPostingLimit: "Job Posting Limit",
-  candidateAccess: "Candidate Access",
+  numberOfResumeAccess: "Candidate Access",
   jobDaysActive: "Job Days Active",
   numberOfResumeAccess: "Number Of Resume Access",
 };
@@ -254,7 +254,7 @@ const SubscriptionPage = () => {
           >
             {/* Plan Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {plans.map((plan) => {
+              {plans.map((plan, index) => {
                 const planKey =
                   plan.packageName?.toLowerCase() ||
                   plan.name?.toLowerCase() ||
@@ -329,6 +329,7 @@ const SubscriptionPage = () => {
                       </div>
 
                       <div>
+                        {console.log("pan data : ", plan)}
                         {Object.entries(featureLabels)?.map(([key, label]) => (
                           <div
                             key={key}
@@ -336,50 +337,18 @@ const SubscriptionPage = () => {
                           >
                             <div className="text-sm">{label}</div>
 
-                            {plans?.map((p) => {
-                              let value = "-";
-
-                              if (key === "expireDaysPackage") {
-                                value = p.expireDaysPackage || "-";
-                              }
-
-                              if (key === "jobPostingLimit") {
-                                value =
-                                  p.numberOfJobPosting ||
-                                  p.jobPostingCredits ||
-                                  "-";
-                              }
-
-                              if (key === "candidateAccess") {
-                                value =
-                                  p.numberOfResumeAccess ||
-                                  p.resumeAccessCredits ||
-                                  "-";
-                              }
-
-                              if (key === "jobDaysActive") {
-                                value = p.jobDaysActive || "-";
-                              }
-
-                              if (key === "numberOfResumeAccess") {
-                                value = p.numberOfResumeAccess || "-";
-                              }
-
-                              return (
-                                <div
-                                  key={p.id}
-                                  className={` text-center ${
-                                    p.id === currentPlan
-                                      ? "bg-brand-primary/3"
-                                      : ""
-                                  }`}
-                                >
-                                  <span className="text-xs font-black text-brand-primary">
-                                    {value ?? "-"}
-                                  </span>
-                                </div>
-                              );
-                            })}
+                            <div
+                              key={plan.id}
+                              className={` text-center ${
+                                plan.id === currentPlan
+                                  ? "bg-brand-primary/3"
+                                  : ""
+                              }`}
+                            >
+                              <span className="text-xs font-black text-brand-primary">
+                                {plan?.[key] ?? "-"}
+                              </span>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -472,7 +441,7 @@ const SubscriptionPage = () => {
                             value = p.expireDaysPackage || "-";
                           }
 
-                          if (key === "jobPostingLimit") {
+                          if (key === "numberOfJobPosting") {
                             value =
                               p.numberOfJobPosting ||
                               p.jobPostingCredits ||
