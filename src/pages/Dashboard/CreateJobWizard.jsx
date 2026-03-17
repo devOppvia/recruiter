@@ -111,7 +111,7 @@ const EXPERIENCE_OPTIONS = [
 const WorkTypeOption = [
   { label: "Remote", value: "REMOTE" },
   { label: "Hybrid", value: "HYBRID" },
-  { label: "On-Site", value: "ON_SITE" },
+  { label: "On-Site", value: "OFFICE" },
 ];
 
 const JobTypeOption = [
@@ -120,6 +120,19 @@ const JobTypeOption = [
   { label: "Contract", value: "CONTRACT" },
   { label: "Any", value: "ANY" },
 ];
+
+// enum JobType {
+//   REMOTE
+//   HYBRID
+//   OFFICE
+// }
+
+// enum WorkMode {
+//   FULL_TIME
+//   PART_TIME
+//   CONTRACT
+//   ANY
+// }
 
 const CreateJobWizard = () => {
   const [showInReviewModal, setShowInReviewModal] = React.useState(false);
