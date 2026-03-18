@@ -187,7 +187,7 @@ const CandidatesPage = () => {
 
   const handleOpenProfile = (candidate) => {
     setProfileModal({
-      isOpen: true, 
+      isOpen: true,
       candidateId: candidate.internId,
     });
   };
@@ -209,12 +209,20 @@ const CandidatesPage = () => {
 
   const handleDownloadResume = async (candidate) => {
     try {
-      const response = await resumeDownloadApi(candidate.id);
-      if (response.status && response.data) {
-        window.open(response.data, "_blank");
-      } else {
-        toast.error(response.message || "Failed to download resume");
-      }
+      const response = await resumeDownloadApi(candidate.internId);
+      // If API returns blob, convert it to blob
+      const blob = new Blob([response], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary link and click it
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `resume_${candidate.internId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Download Resume Error:", error);
       toast.error("Error downloading resume");
@@ -222,7 +230,7 @@ const CandidatesPage = () => {
   };
 
   const handleRejectClick = (candidate) => {
-    handleCandidateStatusUpdate([candidate.id], "rejected");
+    handleCandidateStatusUpdate([candidate.id], "REJECTED");
   };
 
   const someSelected = selectedIds.length > 0;
@@ -385,7 +393,7 @@ const CandidatesPage = () => {
                       if (willOpen) markCandidateOpened(c.id);
                     }}
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-[400px_1fr_180px_140px_100px_40px] gap-6 items-center">
+                    <div className="grid grid-cols-1 md:grid-cols-[400px_1fr_180px_220px_60px] gap-6 items-center">
                       <div className="flex items-center gap-5">
                         <div className="w-14 h-14 rounded-2xl bg-brand-primary/5 flex items-center justify-center text-brand-primary text-xl font-black shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
                           <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent" />
@@ -431,18 +439,53 @@ const CandidatesPage = () => {
                               >
                                 {c.candidateStatus &&
                                   statusTransitions[c.candidateStatus] && (
-                                    <Button
-                                      size="sm"
-                                      className="rounded-xl px-4 py-1.5 h-auto font-black uppercase tracking-widest text-[9px] shadow-soft bg-brand-primary"
-                                      onClick={() =>
-                                        handleNextStepClick(
-                                          c,
-                                          statusTransitions[c.candidateStatus],
+                                    <>
+                                      {c.candidateStatus === "INTERVIEW" &&
+                                      c.interview &&
+                                      c.interview.length > 0 &&
+                                      c.interview[0]?.interviewDate &&
+                                      c.interview[0]?.interviewTime ? (
+                                        new Date(
+                                          `${c.interview[0].interviewDate} ${c.interview[0].interviewTime}`,
+                                        ) > new Date() ? (
+                                          <Button
+                                            size="sm"
+                                            disabled
+                                            className="rounded-xl w-40 px-4 py-1.5 h-auto font-black uppercase tracking-widest text-[9px] shadow-soft bg-brand-primary/30 text-brand-primary/50 cursor-not-allowed"
+                                          >
+                                            Hire (After{" "}
+                                            {c.interview[0].interviewDate} @{" "}
+                                            {c.interview[0].interviewTime})
+                                          </Button>
+                                        ) : (
+                                          <Button
+                                            size="sm"
+                                            className="rounded-xl px-4 py-1.5 h-auto font-black uppercase tracking-widest text-[9px] shadow-soft bg-brand-primary"
+                                            onClick={() =>
+                                              handleNextStepClick(
+                                                c,
+                                                statusTransitions[c.candidateStatus],
+                                              )
+                                            }
+                                          >
+                                            {statusTransitions[c.candidateStatus]}
+                                          </Button>
                                         )
-                                      }
-                                    >
-                                      {statusTransitions[c.candidateStatus]}
-                                    </Button>
+                                      ) : (
+                                        <Button
+                                          size="sm"
+                                          className="rounded-xl px-4 py-1.5 h-auto font-black uppercase tracking-widest text-[9px] shadow-soft bg-brand-primary"
+                                          onClick={() =>
+                                            handleNextStepClick(
+                                              c,
+                                              statusTransitions[c.candidateStatus],
+                                            )
+                                          }
+                                        >
+                                          {statusTransitions[c.candidateStatus]}
+                                        </Button>
+                                      )}
+                                    </>
                                   )}
                                 {c.candidateStatus !== "REJECTED" &&
                                   c.candidateStatus !== "HIRED" && (
@@ -703,6 +746,7 @@ const CandidatesPage = () => {
         isOpen={isInterviewModalOpen}
         onClose={() => setIsInterviewModalOpen(false)}
         candidate={selectedCandidateForInterview}
+        onInterviewScheduled={() => fetchCandidates()}
         // onSuccess={(id, status) => handleCandidateStatusUpdate([id], status)}
       />
       <CandidateProfileModal

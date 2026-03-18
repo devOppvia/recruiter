@@ -86,6 +86,7 @@ const SubscriptionPage = () => {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [purchasedSubscription, setPurchasedSubscription] = useState(null);
 
   const fetchPackages = async () => {
     setLoading(true);
@@ -120,10 +121,23 @@ const SubscriptionPage = () => {
     }
   };
 
+  const fetchPurchasedSubscriptions = async () => {
+    try {
+      const res = await getPurchasedSubscriptionsApi(COMPANY_ID);
+
+      if (res?.data && res.data.length > 0) {
+        setPurchasedSubscription(res.data[0]);
+      }
+    } catch (err) {
+      console.error("Fetch purchased subscriptions error:", err);
+    }
+  };
+
   useEffect(() => {
     if (COMPANY_ID) {
       fetchPackages();
       fetchPurchasedPlans();
+      fetchPurchasedSubscriptions();
     }
   }, []);
 
@@ -242,6 +256,94 @@ const SubscriptionPage = () => {
           );
         })}
       </div>
+
+      {/* Current Subscription Details */}
+      {!purchasedSubscription ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 rounded-[32px] border border-red-200 p-6"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-red-100 flex items-center justify-center text-red-600">
+                <ShieldCheck size={24} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-red-600 tracking-tighter">
+                  No Active Plan
+                </h3>
+                <p className="text-sm font-bold text-red-400">
+                  Subscribe to a new plan to get started
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => dispatch(setActiveTab("plans"))}
+              className="px-6 py-3 bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors"
+            >
+              Subscribe Now
+            </button>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-[32px] border border-brand-primary/5 shadow-soft p-6"
+        >
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-brand-primary/5 flex items-center justify-center text-brand-primary shadow-soft">
+                <Crown size={24} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-brand-primary tracking-tighter uppercase">
+                  {purchasedSubscription.subscription?.packageName || "Plan"}
+                </h3>
+                <p className="text-xs font-bold text-brand-primary/60">
+                  Active Subscription
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-8">
+              <div className="text-center">
+                <p className="text-xs font-black text-brand-primary/40 uppercase tracking-widest">
+                  Job Credits
+                </p>
+                <p className="text-xl font-black text-brand-primary">
+                  {purchasedSubscription.jobPostingCredits || 0}
+                </p>
+              </div>
+              <div className="w-px h-10 bg-brand-primary/10" />
+              <div className="text-center">
+                <p className="text-xs font-black text-brand-primary/40 uppercase tracking-widest">
+                  Resume Credits
+                </p>
+                <p className="text-xl font-black text-brand-primary">
+                  {purchasedSubscription.resumeAccessCredits || 0}
+                </p>
+              </div>
+              <div className="w-px h-10 bg-brand-primary/10" />
+              <div className="text-center">
+                <p className="text-xs font-black text-brand-primary/40 uppercase tracking-widest">
+                  Expires On
+                </p>
+                <p className="text-xl font-black text-brand-primary">
+                  {new Date(
+                    purchasedSubscription.subscriptionEnd,
+                  ).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <AnimatePresence mode="wait">
         {activeTab === "plans" ? (
@@ -363,18 +465,19 @@ const SubscriptionPage = () => {
                       ) : (
                         <button
                           onClick={() => handleSubscriptionClick(plan)}
+                          disabled={plan.isDisabled}
                           className={`w-full py-5 rounded-[24px] text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-soft border border-brand-primary/5 ${
                             isUpgrade
                               ? "bg-brand-primary text-white hover:bg-brand-primary-light hover:shadow-premium"
                               : "bg-white text-brand-primary hover:bg-brand-primary/5"
                           }`}
                         >
-                          {isUpgrade ? "Upgrade Your Potential" : "Review Plan"}
-                          <ArrowRight
+                          {plan.buttonText}
+                          {/* <ArrowRight
                             size={14}
                             strokeWidth={3}
                             className={`transition-transform duration-300 ${isUpgrade ? "group-hover/btn:translate-x-1" : ""}`}
-                          />
+                          /> */}
                         </button>
                       )}
                     </div>

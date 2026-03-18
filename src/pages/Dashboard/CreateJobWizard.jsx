@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -16,7 +16,6 @@ import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Textarea from "../../components/Textarea";
 import CapsuleMultiSelect from "../../components/CapsuleMultiSelect";
-import { getSubscriptionPackagesApi, COMPANY_ID } from "../../helper/api";
 
 import {
   toggleWizard,
@@ -31,11 +30,10 @@ import {
   getJobSubCategoriesApi,
   getSkillsApi,
   getjobLocationsApi,
-  getPurchasedSubscriptionsApi,
   createJobOpeningApi,
+  getPurchasedPlanApi,
 } from "../../helper/api";
 import toast from "react-hot-toast";
-import { setCurrentPlanId } from "../../store/slices/subscriptionSlice";
 
 const AI_TITLE_LIBRARY = {
   "Technology|Web Development": {
@@ -136,6 +134,12 @@ const JobTypeOption = [
 
 const CreateJobWizard = () => {
   const [showInReviewModal, setShowInReviewModal] = React.useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] =
+    React.useState(false);
+  const [showPlanSelectModal, setShowPlanSelectModal] = React.useState(false);
+  const [purchasedPlans, setPurchasedPlans] = React.useState([]);
+  const [selectedPlanId, setSelectedPlanId] = React.useState(null);
+  const [isLoadingPlans, setIsLoadingPlans] = React.useState(false);
   const dispatch = useDispatch();
   const [categories, setCategories] = React.useState([]);
   const [subCategories, setSubCategories] = React.useState([]);
@@ -144,9 +148,6 @@ const CreateJobWizard = () => {
   const [customBenefit, setCustomBenefit] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const companyId = localStorage.getItem("companyId");
-  const currentPlanId = useSelector(
-    (state) => state.subscription.currentPlanId,
-  );
   const { isWizardOpen, currentStep, draft } = useSelector(
     (state) => state.jobs,
   );
@@ -199,19 +200,6 @@ const CreateJobWizard = () => {
     }
   }, []);
 
-  const fetchActiveSubscription = React.useCallback(async (compId) => {
-    try {
-      const response = await getPurchasedSubscriptionsApi(compId);
-      if (response.status && response.data?.length > 0) {
-        // Assuming the first active one is what we need
-        const active = response.data[0];
-        setCurrentPlanId(active.id);
-      }
-    } catch (error) {
-      console.error("Fetch Subscription Error:", error);
-    }
-  }, []);
-
   const fetchJobLocations = React.useCallback(async (companyId) => {
     try {
       const response = await getjobLocationsApi(companyId);
@@ -235,16 +223,9 @@ const CreateJobWizard = () => {
       console.log("company id is : ", companyId);
       if (companyId) {
         fetchJobLocations(companyId);
-        fetchActiveSubscription(companyId);
       }
     }
-  }, [
-    isWizardOpen,
-    fetchCategories,
-    fetchJobLocations,
-    fetchActiveSubscription,
-    companyId,
-  ]);
+  }, [isWizardOpen, fetchCategories, fetchJobLocations, companyId]);
 
   React.useEffect(() => {
     if (draft.jobCategoryId) {
@@ -294,18 +275,21 @@ const CreateJobWizard = () => {
     return () => clearInterval(interval);
   }, [draft, isWizardOpen]);
 
-  // Load draft from localStorage on mount
+  // Load draft from localStorage when wizard opens
   React.useEffect(() => {
-    const savedDraft = localStorage.getItem("oppvia_job_draft");
-    if (savedDraft) {
-      try {
-        const parsedDraft = JSON.parse(savedDraft);
-        dispatch(updateDraft(parsedDraft));
-      } catch {
-        console.error("Failed to parse saved draft");
+    if (isWizardOpen) {
+      const savedDraft = localStorage.getItem("oppvia_job_draft");
+      if (savedDraft) {
+        try {
+          const parsedDraft = JSON.parse(savedDraft);
+          dispatch(updateDraft(parsedDraft));
+          console.log("Draft loaded from localStorage:", parsedDraft);
+        } catch {
+          console.error("Failed to parse saved draft");
+        }
       }
     }
-  }, [dispatch]);
+  }, [isWizardOpen, dispatch]);
 
   const geocodeAddress = (address) => {
     return new Promise((resolve, reject) => {
@@ -374,6 +358,8 @@ const CreateJobWizard = () => {
       case 3:
         if (!draft.description || draft.description.length < 50)
           return "About Job description must be at least 50 characters";
+        if (draft.description.length > 500)
+          return "About Job description must not exceed 500 characters";
         return true;
       default:
         return true;
@@ -389,40 +375,42 @@ const CreateJobWizard = () => {
     }
   };
 
-  const loadCurrentPlan = async () => {
+  const fetchPurchasedPlans = async () => {
+    setIsLoadingPlans(true);
     try {
-      const res = await getSubscriptionPackagesApi(COMPANY_ID);
-
-      if (res?.data) {
-        const active = res.data.find((p) => p.isPurchased || p.isCurrent);
-
-        if (active) {
-          dispatch(setCurrentPlanId(active.id));
-        }
+      const response = await getPurchasedPlanApi(companyId);
+      if (response.status && response.data) {
+        setPurchasedPlans(response.data);
+        setShowPlanSelectModal(true);
+      } else {
+        toast.error(response.message || "No plans found");
       }
-    } catch (err) {
-      console.error("Error loading subscription:", err);
+    } catch (error) {
+      console.error("Fetch Plans Error:", error);
+      toast.error("Failed to load plans");
+    } finally {
+      setIsLoadingPlans(false);
     }
   };
 
-  useEffect(() => {
-    if (COMPANY_ID) {
-      loadCurrentPlan();
-    }
-  }, []);
-
-  const handlePostInternship = async () => {
+  const handlePostInternship = () => {
     const validation = validateStep(3);
     if (validation !== true) {
       toast.error(validation);
       return;
     }
 
-    // if (!activeSubscriptionId) {
-    //   toast.error("No active subscription found. Please check your plan.");
-    //   return;
-    // }
+    // Fetch plans and show selection modal
+    fetchPurchasedPlans();
+  };
 
+  const handlePlanSelectAndPost = async () => {
+    if (!selectedPlanId) {
+      toast.error("Please select a plan");
+      return;
+    }
+
+    setShowPlanSelectModal(false);
     setIsSubmitting(true);
     try {
       const locationString =
@@ -432,6 +420,14 @@ const CreateJobWizard = () => {
       if (locationString && locationString !== "Remote") {
         geoInfo = await geocodeAddress(locationString);
       }
+
+      // const jobDaysActive = purchasedPlans.find(
+      //   (plan) => plan.id === selectedPlanId,
+      // )?.jobActiveDays;
+
+      // const resumeAccessCredits = purchasedPlans.find(
+      //   (plan) => plan.id === selectedPlanId,
+      // )?.jobActiveDays;
 
       const payload = {
         aboutJob: draft.description,
@@ -462,7 +458,7 @@ const CreateJobWizard = () => {
             ? "YES"
             : "NO",
         workingHours: draft.workingHours,
-        subscriptionId: currentPlanId,
+        subscriptionId: selectedPlanId,
       };
 
       const response = await createJobOpeningApi(payload);
@@ -973,24 +969,36 @@ const CreateJobWizard = () => {
               </div>
 
               <div className="space-y-6 relative z-10">
-                <Textarea
-                  label="Role Description"
-                  placeholder="Describe the role and team culture..."
-                  value={draft.description}
-                  onChange={(e) =>
-                    dispatch(updateDraft({ description: e.target.value }))
-                  }
-                  className="bg-white/10 border-none text-white placeholder:text-white/30 rounded-2xl h-32 focus:ring-white/20 text-sm"
-                />
-                <Textarea
-                  label="Other Information (Optional)"
-                  placeholder="Mention perks, shift timings, etc..."
-                  value={draft.otherInfo}
-                  onChange={(e) =>
-                    dispatch(updateDraft({ otherInfo: e.target.value }))
-                  }
-                  className="bg-white/10 border-none text-white placeholder:text-white/30 rounded-2xl h-24 focus:ring-white/20 text-sm"
-                />
+                <div>
+                  <Textarea
+                    label="Role Description"
+                    placeholder="Describe the role and team culture..."
+                    value={draft.description}
+                    onChange={(e) =>
+                      dispatch(updateDraft({ description: e.target.value }))
+                    }
+                    className="bg-white/10 border-none text-white placeholder:text-white/30 rounded-2xl h-32 focus:ring-white/20 text-sm"
+                  />
+                  <p
+                    className={`text-[10px] font-bold mt-1 text-right ${draft.description.length > 500 ? "text-red-400" : "text-white/40"}`}
+                  >
+                    {draft.description.length}/500 characters
+                  </p>
+                </div>
+                <div>
+                  <Textarea
+                    label="Other Information (Optional)"
+                    placeholder="Mention perks, shift timings, etc..."
+                    value={draft.otherInfo}
+                    onChange={(e) =>
+                      dispatch(updateDraft({ otherInfo: e.target.value }))
+                    }
+                    className="bg-white/10 border-none text-white placeholder:text-white/30 rounded-2xl h-24 focus:ring-white/20 text-sm"
+                  />
+                  <p className="text-[10px] font-bold mt-1 text-right text-white/40">
+                    {draft.otherInfo?.length || 0} characters
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -1170,6 +1178,13 @@ const CreateJobWizard = () => {
                 <div className="flex items-center gap-3">
                   <Button
                     variant="ghost"
+                    onClick={() => {
+                      localStorage.setItem(
+                        "oppvia_job_draft",
+                        JSON.stringify(draft),
+                      );
+                      toast.success("Draft saved successfully!");
+                    }}
                     className="text-brand-primary/40 font-black uppercase tracking-widest text-[10px] hover:text-brand-primary px-4"
                   >
                     <Save size={14} className="mr-2" /> Save Draft
@@ -1245,6 +1260,201 @@ const CreateJobWizard = () => {
               >
                 Okay
               </Button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Subscription Required Modal */}
+      <AnimatePresence>
+        {showSubscriptionModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSubscriptionModal(false)}
+              className="absolute inset-0 bg-brand-dark/40 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.94, opacity: 0, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-[32px] p-8 shadow-2xl border border-brand-primary/10"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-5">
+                <CircleAlert size={24} strokeWidth={2.5} />
+              </div>
+              <h3 className="text-2xl font-black text-brand-primary tracking-tight mb-2">
+                Subscription Required
+              </h3>
+              <p className="text-sm font-semibold text-brand-primary/50 mb-7">
+                You need an active subscription to post a job. Please subscribe
+                to continue.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowSubscriptionModal(false)}
+                  variant="outline"
+                  className="flex-1 rounded-2xl py-4 h-auto border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5 font-black uppercase tracking-widest text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowSubscriptionModal(false);
+                    handleClose();
+                    window.location.href = "/dashboard/subscription";
+                  }}
+                  className="flex-1 rounded-2xl py-4 h-auto bg-brand-primary hover:bg-brand-primary-light font-black uppercase tracking-widest text-xs"
+                >
+                  Subscribe
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Plan Selection Modal */}
+      <AnimatePresence>
+        {showPlanSelectModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setShowPlanSelectModal(false);
+                setSelectedPlanId(null);
+              }}
+              className="absolute inset-0 bg-brand-dark/40 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.94, opacity: 0, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-[32px] p-8 shadow-2xl border border-brand-primary/10 max-h-[80vh] overflow-y-auto"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-black text-brand-primary tracking-tight">
+                  Select a Plan
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowPlanSelectModal(false);
+                    setSelectedPlanId(null);
+                  }}
+                  className="w-10 h-10 rounded-2xl bg-brand-primary/5 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-all"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <p className="text-sm font-semibold text-brand-primary/50 mb-6">
+                Choose a plan to use for this job posting
+              </p>
+
+              {isLoadingPlans ? (
+                <div className="flex items-center justify-center py-10">
+                  <div className="w-8 h-8 border-2 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
+                </div>
+              ) : purchasedPlans.length > 0 ? (
+                <div className="space-y-3 mb-6">
+                  {purchasedPlans.map((plan) => (
+                    <div
+                      key={plan.id}
+                      onClick={() => setSelectedPlanId(plan.subscriptionId)}
+                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${
+                        selectedPlanId === plan.id
+                          ? "border-brand-primary bg-brand-primary/5"
+                          : "border-brand-primary/10 hover:border-brand-primary/30"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="text-base font-black text-brand-primary">
+                            {plan.subscription?.packageName || "Plan"}
+                          </h4>
+                          <div className="mt-2 space-y-1">
+                            <p className="text-xs font-semibold text-brand-primary/60">
+                              Job Postings:{" "}
+                              <span className="text-brand-primary font-black">
+                                {plan.jobPostingCredits}
+                              </span>
+                            </p>
+                            <p className="text-xs font-semibold text-brand-primary/60">
+                              Resume Access:{" "}
+                              <span className="text-brand-primary font-black">
+                                {plan.resumeAccessCredits}
+                              </span>
+                            </p>
+                            <p className="text-xs font-semibold text-brand-primary/60">
+                              Valid Until:{" "}
+                              <span className="text-brand-primary font-black">
+                                {new Date(
+                                  plan.subscriptionEnd,
+                                ).toLocaleDateString("en-IN", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </span>
+                            </p>
+                            <p className="text-xs font-semibold text-brand-primary/60">
+                              Active Days:{" "}
+                              <span className="text-brand-primary font-black">
+                                {plan.jobDaysActive} days
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                        <div
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                            selectedPlanId === plan.id
+                              ? "border-brand-primary bg-brand-primary"
+                              : "border-brand-primary/30"
+                          }`}
+                        >
+                          {selectedPlanId === plan.id && (
+                            <CheckCircle2 size={14} className="text-white" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-brand-primary/50 text-center py-6">
+                  No plans available
+                </p>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    setShowPlanSelectModal(false);
+                    setSelectedPlanId(null);
+                  }}
+                  variant="outline"
+                  className="flex-1 rounded-2xl py-4 h-auto border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5 font-black uppercase tracking-widest text-xs"
+                >
+                  Discard
+                </Button>
+                <Button
+                  onClick={handlePlanSelectAndPost}
+                  disabled={!selectedPlanId || isSubmitting}
+                  className="flex-1 rounded-2xl py-4 h-auto bg-brand-primary hover:bg-brand-primary-light font-black uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <Save size={14} className="mr-2" /> Post Job
+                    </>
+                  )}
+                </Button>
+              </div>
             </motion.div>
           </div>
         )}

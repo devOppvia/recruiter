@@ -8,6 +8,7 @@ import {
   MapPin,
   ChevronRight,
   CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import Button from "../Button";
 import {
@@ -17,7 +18,44 @@ import {
 } from "../../helper/api";
 import toast from "react-hot-toast";
 
-const InterviewModal = ({ isOpen, onClose, candidate, onSuccess }) => {
+// Popular video conferencing platforms with their URL patterns
+const VALID_PLATFORMS = [
+  { name: "Google Meet", patterns: ["meet.google.com", "meet.google.com/"] },
+  { name: "Zoom", patterns: ["zoom.us", "zoom.us/j/", "zoom.us/my/"] },
+  { name: "Microsoft Teams", patterns: ["teams.microsoft.com", "teams.live.com"] },
+  { name: "Webex", patterns: ["webex.com", ".webex.com"] },
+  { name: "GoToMeeting", patterns: ["gotomeeting.com", "gotomeet.me"] },
+  { name: "BlueJeans", patterns: ["bluejeans.com"] },
+  { name: "Cisco Webex", patterns: ["webex.com"] },
+  { name: "Whereby", patterns: ["whereby.com"] },
+  { name: "Jitsi", patterns: ["jitsi.org", "meet.jit.si"] },
+  { name: "Discord", patterns: ["discord.gg", "discord.com"] },
+  { name: "Skype", patterns: ["skype.com", "join.skype.com"] },
+  { name: "Mattermost", patterns: ["mattermost.com"] },
+  { name: "Slack", patterns: ["slack.com", "app.slack.com"] },
+];
+
+const isValidPlatformLink = (input) => {
+  if (!input) return false;
+
+  // Check if it's a full URL
+  try {
+    const url = new URL(input.startsWith("http") ? input : `https://${input}`);
+    const hostname = url.hostname.toLowerCase();
+
+    // Check if hostname matches any platform pattern
+    return VALID_PLATFORMS.some((platform) =>
+      platform.patterns.some((pattern) => hostname.includes(pattern.replace("www.", "")))
+    );
+  } catch {
+    // If not a valid URL, check if it's a meeting ID/username that might be valid
+    // Allow common meeting ID formats (alphanumeric with dashes)
+    const meetingIdPattern = /^[a-zA-Z0-9\-._]+$/;
+    return meetingIdPattern.test(input.trim());
+  }
+};
+
+const InterviewModal = ({ isOpen, onClose, candidate, onSuccess, onInterviewScheduled }) => {
   const [formData, setFormData] = useState({
     date: "",
     time: "",
@@ -26,7 +64,7 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess }) => {
     location: "",
     notes: "",
   });
-  console.log("candidate is. : ", candidate);
+  const [platformError, setPlatformError] = useState("");
 
   const [locations, setLocations] = useState([]);
   const companyId = localStorage.getItem("companyId");
@@ -59,6 +97,16 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate platform link for online interviews
+    if (formData.mode === "Online" && formData.platform) {
+      if (!isValidPlatformLink(formData.platform)) {
+        setPlatformError("Please enter a valid meeting link (e.g., Google Meet, Zoom, Teams)");
+        return;
+      }
+      setPlatformError("");
+    }
+
     try {
       // const payload = {
       //   companyId,
@@ -100,6 +148,9 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess }) => {
         // if (onSuccess) {
         //   onSuccess(candidate.id, "INTERVIEW");
         // }
+        if (onInterviewScheduled) {
+          onInterviewScheduled();
+        }
         setIsSubmitted(true);
         setTimeout(() => {
           handleClose();
@@ -109,7 +160,7 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess }) => {
       }
     } catch (error) {
       console.error("Schedule Interview Error:", error);
-      toast.error(error?.message || "An error occurred");
+      toast.error(error || "An error occurred");
     }
   };
 
@@ -256,20 +307,34 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess }) => {
                     </label>
                     <div className="relative group">
                       <Video
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-primary/20 group-focus-within:text-brand-primary transition-colors"
+                        className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${
+                          platformError ? "text-red-400" : "text-brand-primary/20 group-focus-within:text-brand-primary"
+                        }`}
                         size={18}
                       />
                       <input
                         required
                         type="text"
-                        placeholder="Enter platform (e.g. Google Meet, Zoom)..."
-                        className="w-full pl-12 pr-4 py-4 bg-brand-primary/5 border-none rounded-2xl text-xs font-bold text-brand-primary outline-none focus:ring-2 focus:ring-brand-primary/10 transition-all"
+                        placeholder="Enter meeting link (e.g., https://meet.google.com/xxx)"
+                        className={`w-full pl-12 pr-4 py-4 bg-brand-primary/5 border-none rounded-2xl text-xs font-bold text-brand-primary outline-none focus:ring-2 transition-all ${
+                          platformError ? "focus:ring-red-400 ring-1 ring-red-400" : "focus:ring-brand-primary/10"
+                        }`}
                         value={formData.platform}
-                        onChange={(e) =>
-                          setFormData({ ...formData, platform: e.target.value })
-                        }
+                        onChange={(e) => {
+                          setFormData({ ...formData, platform: e.target.value });
+                          if (platformError) setPlatformError("");
+                        }}
                       />
                     </div>
+                    {platformError && (
+                      <p className="text-[10px] font-bold text-red-500 flex items-center gap-1 ml-1">
+                        <AlertCircle size={12} />
+                        {platformError}
+                      </p>
+                    )}
+                    <p className="text-[9px] font-bold text-brand-primary/30 ml-1">
+                      Accepted: Google Meet, Zoom, Microsoft Teams, Webex, GoToMeeting, BlueJeans, Whereby, Jitsi, Discord, Skype
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-2">

@@ -211,7 +211,8 @@ const Step3Location = ({ onNext, onBack, data, updateData }) => {
                     <button
                         type="button"
                         onClick={() => updateData({ branches: [...(data.branches || []), ''] })}
-                        className="flex items-center gap-2 text-[10px] font-black text-brand-primary uppercase tracking-widest px-4 py-2 rounded-xl bg-brand-primary/5 border border-brand-primary/10 hover:bg-brand-primary/10 transition-all font-inter"
+                        disabled={(data.branches || []).some(branch => !branch || branch.trim() === '')}
+                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-brand-primary/5 border border-brand-primary/10 hover:bg-brand-primary/10 transition-all font-inter disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-brand-primary/5"
                     >
                         <Plus size={13} strokeWidth={3} />
                         Add Branch
