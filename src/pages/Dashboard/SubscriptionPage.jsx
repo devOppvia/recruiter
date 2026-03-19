@@ -16,7 +16,10 @@ import {
 } from "lucide-react";
 import Button from "../../components/Button";
 import Tooltip from "../../components/Tooltip";
-import { setActiveTab, setSubscriptionData } from "../../store/slices/subscriptionSlice";
+import {
+  setActiveTab,
+  setSubscriptionData,
+} from "../../store/slices/subscriptionSlice";
 import {
   COMPANY_ID,
   getSubscriptionPackagesApi,
@@ -141,7 +144,7 @@ const SubscriptionPage = () => {
       fetchPurchasedPlans();
       fetchPurchasedSubscriptions();
     }
-  }, []);
+  }, [COMPANY_ID]);
 
   const handleSubscriptionClick = async (plan) => {
     try {
@@ -283,7 +286,7 @@ const SubscriptionPage = () => {
             </div>
             <button
               onClick={() => dispatch(setActiveTab("plans"))}
-              className="px-6 py-3 bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors"
+              className="px-6 py-3 text-red-500 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors"
             >
               Subscribe Now
             </button>

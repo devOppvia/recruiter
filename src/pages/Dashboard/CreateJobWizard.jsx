@@ -10,6 +10,7 @@ import {
   CircleAlert,
   Save,
   Plus,
+  Loader2,
 } from "lucide-react";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
@@ -32,59 +33,11 @@ import {
   getjobLocationsApi,
   createJobOpeningApi,
   getPurchasedPlanApi,
+  getAiGeneratedAboutApi,
+  getAiGeneratedOtherDetailsApi,
+  generateJobPositionTitleApi,
 } from "../../helper/api";
 import toast from "react-hot-toast";
-
-const AI_TITLE_LIBRARY = {
-  "Technology|Web Development": {
-    Internship: [
-      "Frontend Developer Intern",
-      "Web Development Intern",
-      "React Intern",
-    ],
-    Job: ["Frontend Developer", "Web Developer", "React Developer"],
-  },
-  "Engineering|Backend Engineering": {
-    Internship: [
-      "Backend Engineering Intern",
-      "Node.js Intern",
-      "API Development Intern",
-    ],
-    Job: ["Backend Engineer", "Node.js Developer", "Backend Software Engineer"],
-  },
-  "Design|UI/UX Design": {
-    Internship: [
-      "UI/UX Design Intern",
-      "Product Design Intern",
-      "UX Research Intern",
-    ],
-    Job: ["UI/UX Designer", "Product Designer", "UX Designer"],
-  },
-  "Marketing|Content Marketing": {
-    Internship: [
-      "Content Marketing Intern",
-      "Content Strategy Intern",
-      "SEO Content Intern",
-    ],
-    Job: [
-      "Content Marketing Specialist",
-      "Content Strategist",
-      "SEO Content Writer",
-    ],
-  },
-  "Business|Sales": {
-    Internship: [
-      "Sales Intern",
-      "Business Development Intern",
-      "Inside Sales Intern",
-    ],
-    Job: [
-      "Sales Executive",
-      "Business Development Executive",
-      "Inside Sales Specialist",
-    ],
-  },
-};
 
 const BENEFIT_OPTIONS = [
   "Certificate",
@@ -147,6 +100,10 @@ const CreateJobWizard = () => {
   const [jobLocations, setJobLocations] = React.useState([]);
   const [customBenefit, setCustomBenefit] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isGeneratingAbout, setIsGeneratingAbout] = React.useState(false);
+  const [isGeneratingOther, setIsGeneratingOther] = React.useState(false);
+  const [aiSuggestedTitles, setAiSuggestedTitles] = React.useState([]);
+  const [isLoadingTitles, setIsLoadingTitles] = React.useState(false);
   const companyId = localStorage.getItem("companyId");
   const { isWizardOpen, currentStep, draft } = useSelector(
     (state) => state.jobs,
@@ -243,23 +200,31 @@ const CreateJobWizard = () => {
     }
   }, [draft.jobSubCategoryId, fetchSkills]);
 
-  const aiSuggestedTitles = React.useMemo(() => {
-    if (!draft.category || !draft.subCategory) return [];
-    const key = `${draft.category}|${draft.subCategory}`;
-    const mapped = AI_TITLE_LIBRARY[key]?.[draft.applicationType];
-    if (mapped?.length) return mapped;
-    return draft.applicationType === "Job"
-      ? [
-          `${draft.subCategory} Specialist`,
-          `${draft.subCategory} Associate`,
-          `${draft.subCategory} Executive`,
-        ]
-      : [
-          `${draft.subCategory} Intern`,
-          `${draft.subCategory} Trainee`,
-          `${draft.subCategory} Associate Intern`,
-        ];
-  }, [draft.applicationType, draft.category, draft.subCategory]);
+  // Fetch AI suggested titles when category and subcategory are selected
+  React.useEffect(() => {
+    const fetchAiTitles = async () => {
+      if (draft.jobCategoryId && draft.jobSubCategoryId) {
+        try {
+          setIsLoadingTitles(true);
+          const response = await generateJobPositionTitleApi({
+            category: draft.category,
+            subCategory: draft.subCategory,
+            applicationType: draft.applicationType,
+          });
+          if (response.status && response.data) {
+            setAiSuggestedTitles(response.data);
+          }
+        } catch (error) {
+          console.error("Error fetching AI titles:", error);
+        } finally {
+          setIsLoadingTitles(false);
+        }
+      } else {
+        setAiSuggestedTitles([]);
+      }
+    };
+    fetchAiTitles();
+  }, [draft.jobCategoryId, draft.jobSubCategoryId, draft.category, draft.subCategory, draft.applicationType]);
 
   // console.log("isWizard Open")
 
@@ -358,8 +323,8 @@ const CreateJobWizard = () => {
       case 3:
         if (!draft.description || draft.description.length < 50)
           return "About Job description must be at least 50 characters";
-        if (draft.description.length > 500)
-          return "About Job description must not exceed 500 characters";
+        if (draft.description.length > 1000)
+          return "About Job description must not exceed 1000 characters";
         return true;
       default:
         return true;
@@ -478,6 +443,42 @@ const CreateJobWizard = () => {
     }
   };
 
+  const handelGenerateAbout = async () => {
+    try {
+      setIsGeneratingAbout(true);
+      const response = await getAiGeneratedAboutApi(draft);
+      console.log(response);
+      if (response.status) {
+        dispatch(updateDraft({ description: response.data }));
+      } else {
+        toast.error(response.message || "Failed to generate about");
+      }
+    } catch (error) {
+      console.error("Generate About Error:", error);
+      toast.error(error || "An error occurred while generating about");
+    } finally {
+      setIsGeneratingAbout(false);
+    }
+  };
+
+  const handleGenerateOtherDetails = async () => {
+    try {
+      setIsGeneratingOther(true);
+      const response = await getAiGeneratedOtherDetailsApi(draft);
+      console.log(response);
+      if (response.status) {
+        dispatch(updateDraft({ otherInfo: response.data }));
+      } else {
+        toast.error(response.message || "Failed to generate details");
+      }
+    } catch (error) {
+      console.error("Generate Other Details Error:", error);
+      toast.error(error || "An error occurred while generating details");
+    } finally {
+      setIsGeneratingOther(false);
+    }
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -576,24 +577,34 @@ const CreateJobWizard = () => {
                 {draft.category && draft.subCategory && (
                   <div className="space-y-2">
                     <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40 px-1 flex items-center gap-2">
-                      <Sparkles size={12} className="text-brand-accent" />
-                      AI Suggested Titles
+                      {isLoadingTitles ? (
+                        <Loader2 size={12} className="animate-spin text-brand-accent" />
+                      ) : (
+                        <Sparkles size={12} className="text-brand-accent" />
+                      )}
+                      {isLoadingTitles ? "Generating Titles..." : "AI Suggested Titles"}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {aiSuggestedTitles.map((title) => (
-                        <button
-                          key={title}
-                          type="button"
-                          onClick={() => dispatch(updateDraft({ title }))}
-                          className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                            draft.title === title
-                              ? "bg-brand-primary text-white"
-                              : "bg-brand-primary/5 text-brand-primary hover:bg-brand-primary/10"
-                          }`}
-                        >
-                          {title}
-                        </button>
-                      ))}
+                      {isLoadingTitles ? (
+                        <p className="text-xs text-brand-primary/40">Loading suggestions...</p>
+                      ) : aiSuggestedTitles.length > 0 ? (
+                        aiSuggestedTitles.map((title) => (
+                          <button
+                            key={title}
+                            type="button"
+                            onClick={() => dispatch(updateDraft({ title }))}
+                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                              draft.title === title
+                                ? "bg-brand-primary text-white"
+                                : "bg-brand-primary/5 text-brand-primary hover:bg-brand-primary/10"
+                            }`}
+                          >
+                            {title}
+                          </button>
+                        ))
+                      ) : (
+                        <p className="text-xs text-brand-primary/40">No suggestions available</p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -957,13 +968,21 @@ const CreateJobWizard = () => {
                 <h3 className="text-xl font-black tracking-tight">
                   Role Information
                 </h3>
-                <button className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all group">
-                  <Sparkles
-                    size={16}
-                    className="text-brand-accent group-hover:rotate-12 transition-transform"
-                  />
+                <button
+                  onClick={handelGenerateAbout}
+                  disabled={isGeneratingAbout}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isGeneratingAbout ? (
+                    <Loader2 size={16} className="animate-spin text-brand-accent" />
+                  ) : (
+                    <Sparkles
+                      size={16}
+                      className="text-brand-accent group-hover:rotate-12 transition-transform"
+                    />
+                  )}
                   <span className="text-[10px] font-black uppercase tracking-widest">
-                    AI Refine
+                    {isGeneratingAbout ? "Generating..." : "AI Refine"}
                   </span>
                 </button>
               </div>
@@ -980,14 +999,35 @@ const CreateJobWizard = () => {
                     className="bg-white/10 border-none text-white placeholder:text-white/30 rounded-2xl h-32 focus:ring-white/20 text-sm"
                   />
                   <p
-                    className={`text-[10px] font-bold mt-1 text-right ${draft.description.length > 500 ? "text-red-400" : "text-white/40"}`}
+                    className={`text-[10px] font-bold mt-1 text-right ${draft?.description?.length > 1000 ? "text-red-400" : "text-white/40"}`}
                   >
-                    {draft.description.length}/500 characters
+                    {draft?.description?.length}/1000 characters
                   </p>
                 </div>
                 <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-[10px] font-black text-white/60 uppercase tracking-widest">
+                      Other Information (Optional)
+                    </label>
+                    <button
+                      onClick={handleGenerateOtherDetails}
+                      disabled={isGeneratingOther}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGeneratingOther ? (
+                        <Loader2 size={14} className="animate-spin text-brand-accent" />
+                      ) : (
+                        <Sparkles
+                          size={14}
+                          className="text-brand-accent group-hover:rotate-12 transition-transform"
+                        />
+                      )}
+                      <span className="text-[9px] font-black uppercase tracking-widest">
+                        {isGeneratingOther ? "Generating..." : "AI Refine"}
+                      </span>
+                    </button>
+                  </div>
                   <Textarea
-                    label="Other Information (Optional)"
                     placeholder="Mention perks, shift timings, etc..."
                     value={draft.otherInfo}
                     onChange={(e) =>

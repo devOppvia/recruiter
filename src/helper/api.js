@@ -469,6 +469,16 @@ export const getAiGeneratedAboutApi = async (userData) => {
   }
 };
 
+export const getAiGeneratedOtherDetailsApi = async (userData) => {
+  try {
+    const response = await api.post(`jobs/generate-job-other-requirements`, userData);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error.response.data.message || "Check Network Connection";
+  }
+};
+
 //Support
 
 export const getAllSupportApi = async (userData) => {

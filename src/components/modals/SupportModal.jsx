@@ -8,6 +8,7 @@ import Input from "../Input";
 import Select from "../Select";
 import Textarea from "../Textarea";
 import { createSupportApi, COMPANY_ID } from "../../helper/api";
+import toast from "react-hot-toast";
 
 const SupportModal = () => {
   const dispatch = useDispatch();
@@ -74,6 +75,7 @@ const SupportModal = () => {
         window.location.reload();
       }
     } catch (err) {
+      toast.error(err || "Failed to create ticket");
       console.error("Create ticket error:", err);
     }
   };

@@ -15,6 +15,9 @@ import {
   ShieldCheck,
   CheckCircle2,
   Loader2,
+  Link,
+  Trash2,
+  File,
 } from "lucide-react";
 import {
   toggleSupportModal,
@@ -43,7 +46,26 @@ const SupportPage = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+
+    setFilePreview({
+      name: file.name,
+      url: URL.createObjectURL(file),
+      type: file.type,
+    });
+  };
+
   const activeTicket = ticketsData.find((t) => t.id === activeTicketId);
+
+  console.log("active tickit : ", activeTicket);
   useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -60,12 +82,18 @@ const SupportPage = () => {
       formData.append("supportId", activeTicketId);
       formData.append("message", replyText);
       formData.append("isRepliedByAdmin", false);
+      if (selectedFile) {
+        formData.append("attachment", selectedFile); // 👈 IMPORTANT
+      }
 
       const res = await addSupportMessageApi(formData);
 
       if (res?.status) {
         setReplyText("");
         fetchMessages(activeTicketId);
+        setSelectedFile(null);
+        setFilePreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
     } catch (err) {
       console.error("Send message error", err);
@@ -145,6 +173,12 @@ const SupportPage = () => {
 
   return (
     <div className="space-y-8 pb-10 h-[calc(100vh-140px)] flex flex-col">
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileSelect}
+      />
       {/* Editorial Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 shrink-0">
         <div className="space-y-1">
@@ -301,7 +335,7 @@ const SupportPage = () => {
 
                 {/* Messages Area */}
                 <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar bg-brand-primary/[0.01]">
-                  {ticketAttachmentUrl && (
+                  {activeTicket?.attachment && ticketAttachmentUrl && (
                     <div className="relative group h-40 w-fit p-4 border rounded-xl mx-auto overflow-hidden">
                       <img
                         src={ticketAttachmentUrl}
@@ -367,7 +401,21 @@ const SupportPage = () => {
                           }`}
                         >
                           {msg.message}
+                          {msg.attachment && (
+                            <a
+                              href={IMG_URL + "/" + msg.attachment}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`flex ${!msg.isRepliedByAdmin ? "bg-white/20 text-white" : "bg-brand-primary text-white"} p-2 rounded-lg items-center gap-2 mt-2`}
+                            >
+                              <File className="w-5 h-5" />
+                              <span className="text-[9px] font-bold uppercase tracking-widest">
+                                open attachment
+                              </span>
+                            </a>
+                          )}
                         </div>
+
                         <p className="text-[10px] font-black text-brand-primary/20 uppercase tracking-widest">
                           {new Date(msg.createAt).toLocaleTimeString([], {
                             hour: "2-digit",
@@ -381,33 +429,87 @@ const SupportPage = () => {
                 </div>
 
                 {/* Reply Area */}
-                <div className="p-8 border-t border-brand-primary/5 bg-white shrink-0">
-                  <form onSubmit={handleSendReply} className="relative group">
-                    <textarea
-                      placeholder="Write your message here..."
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      rows="2"
-                      className="w-full pl-6 pr-32 py-5 rounded-[24px] bg-brand-primary/5 border border-brand-primary/5 focus:ring-4 focus:ring-brand-primary/5 outline-none text-sm font-bold placeholder:text-brand-primary/20 transition-all resize-none group-focus-within:bg-white group-focus-within:border-brand-primary/10"
-                    />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                      <Button
-                        onClick={handleSendReply}
-                        disabled={!replyText.trim()}
-                        className="rounded-xl px-6 py-3 h-auto shadow-premium bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center gap-2 group/btn"
-                      >
-                        <span className="font-black uppercase tracking-widest text-[10px]">
-                          Send
-                        </span>
-                        <Send
-                          size={14}
-                          strokeWidth={3}
-                          className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform"
-                        />
-                      </Button>
-                    </div>
-                  </form>
-                </div>
+
+                {activeTicket.status == "OPEN" ? (
+                  <div className="p-8 border-t border-brand-primary/5 bg-white shrink-0">
+                    {filePreview && (
+                      <div className="mb-4 p-4 bg-brand-primary/5 border border-brand-primary/10 rounded-xl flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {filePreview.type.startsWith("image/") ? (
+                            <img
+                              src={filePreview.url}
+                              alt={filePreview.name}
+                              className="w-10 h-10 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-brand-primary/10 rounded-lg flex items-center justify-center">
+                              <File className="w-5 h-5 text-brand-primary" />
+                            </div>
+                          )}
+
+                          <div>
+                            <p className="text-xs font-bold text-brand-primary truncate max-w-[200px]">
+                              {filePreview.name}
+                            </p>
+                            <p className="text-[9px] text-brand-primary/40 uppercase">
+                              {filePreview.type}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setSelectedFile(null);
+                            setFilePreview(null);
+                            if (fileInputRef.current)
+                              fileInputRef.current.value = "";
+                          }}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                    <form onSubmit={handleSendReply} className="relative group">
+                      <textarea
+                        placeholder="Write your message here..."
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        rows="2"
+                        className="w-full pl-6 pr-32 py-5 rounded-[24px] bg-brand-primary/5 border border-brand-primary/5 focus:ring-4 focus:ring-brand-primary/5 outline-none text-sm font-bold placeholder:text-brand-primary/20 transition-all resize-none group-focus-within:bg-white group-focus-within:border-brand-primary/10"
+                      />
+
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current.click()}
+                          className="p-2 text-brand-primary hover:bg-brand-primary/10 rounded-lg"
+                        >
+                          <Link className="w-5 h-5" />
+                        </button>
+
+                        <Button
+                          onClick={handleSendReply}
+                          disabled={!replyText.trim()}
+                          className="rounded-xl px-6 py-3 h-auto shadow-premium bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center gap-2 group/btn"
+                        >
+                          <span className="font-black uppercase tracking-widest text-[10px]">
+                            Send
+                          </span>
+                          <Send
+                            size={14}
+                            strokeWidth={3}
+                            className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform"
+                          />
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="p-8 border-t text-center font-semibold border-brand-primary/5 bg-white shrink-0">
+                    Ticket is closed
+                  </div>
+                )}
               </motion.div>
             ) : (
               <motion.div

@@ -22,7 +22,10 @@ import toast from "react-hot-toast";
 const VALID_PLATFORMS = [
   { name: "Google Meet", patterns: ["meet.google.com", "meet.google.com/"] },
   { name: "Zoom", patterns: ["zoom.us", "zoom.us/j/", "zoom.us/my/"] },
-  { name: "Microsoft Teams", patterns: ["teams.microsoft.com", "teams.live.com"] },
+  {
+    name: "Microsoft Teams",
+    patterns: ["teams.microsoft.com", "teams.live.com"],
+  },
   { name: "Webex", patterns: ["webex.com", ".webex.com"] },
   { name: "GoToMeeting", patterns: ["gotomeeting.com", "gotomeet.me"] },
   { name: "BlueJeans", patterns: ["bluejeans.com"] },
@@ -45,7 +48,9 @@ const isValidPlatformLink = (input) => {
 
     // Check if hostname matches any platform pattern
     return VALID_PLATFORMS.some((platform) =>
-      platform.patterns.some((pattern) => hostname.includes(pattern.replace("www.", "")))
+      platform.patterns.some((pattern) =>
+        hostname.includes(pattern.replace("www.", "")),
+      ),
     );
   } catch {
     // If not a valid URL, check if it's a meeting ID/username that might be valid
@@ -55,7 +60,13 @@ const isValidPlatformLink = (input) => {
   }
 };
 
-const InterviewModal = ({ isOpen, onClose, candidate, onSuccess, onInterviewScheduled }) => {
+const InterviewModal = ({
+  isOpen,
+  onClose,
+  candidate,
+  onSuccess,
+  onInterviewScheduled,
+}) => {
   const [formData, setFormData] = useState({
     date: "",
     time: "",
@@ -101,7 +112,9 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess, onInterviewSche
     // Validate platform link for online interviews
     if (formData.mode === "Online" && formData.platform) {
       if (!isValidPlatformLink(formData.platform)) {
-        setPlatformError("Please enter a valid meeting link (e.g., Google Meet, Zoom, Teams)");
+        setPlatformError(
+          "Please enter a valid meeting link (e.g., Google Meet, Zoom, Teams)",
+        );
         return;
       }
       setPlatformError("");
@@ -241,6 +254,7 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess, onInterviewSche
                       <input
                         required
                         type="date"
+                        min={new Date().toISOString().split("T")[0]}
                         className="w-full pl-12 pr-4 py-4 bg-brand-primary/5 border-none rounded-2xl text-xs font-bold text-brand-primary outline-none focus:ring-2 focus:ring-brand-primary/10 transition-all"
                         value={formData.date}
                         onChange={(e) =>
@@ -308,7 +322,9 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess, onInterviewSche
                     <div className="relative group">
                       <Video
                         className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${
-                          platformError ? "text-red-400" : "text-brand-primary/20 group-focus-within:text-brand-primary"
+                          platformError
+                            ? "text-red-400"
+                            : "text-brand-primary/20 group-focus-within:text-brand-primary"
                         }`}
                         size={18}
                       />
@@ -317,11 +333,16 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess, onInterviewSche
                         type="text"
                         placeholder="Enter meeting link (e.g., https://meet.google.com/xxx)"
                         className={`w-full pl-12 pr-4 py-4 bg-brand-primary/5 border-none rounded-2xl text-xs font-bold text-brand-primary outline-none focus:ring-2 transition-all ${
-                          platformError ? "focus:ring-red-400 ring-1 ring-red-400" : "focus:ring-brand-primary/10"
+                          platformError
+                            ? "focus:ring-red-400 ring-1 ring-red-400"
+                            : "focus:ring-brand-primary/10"
                         }`}
                         value={formData.platform}
                         onChange={(e) => {
-                          setFormData({ ...formData, platform: e.target.value });
+                          setFormData({
+                            ...formData,
+                            platform: e.target.value,
+                          });
                           if (platformError) setPlatformError("");
                         }}
                       />
@@ -333,7 +354,8 @@ const InterviewModal = ({ isOpen, onClose, candidate, onSuccess, onInterviewSche
                       </p>
                     )}
                     <p className="text-[9px] font-bold text-brand-primary/30 ml-1">
-                      Accepted: Google Meet, Zoom, Microsoft Teams, Webex, GoToMeeting, BlueJeans, Whereby, Jitsi, Discord, Skype
+                      Accepted: Google Meet, Zoom, Microsoft Teams, Webex,
+                      GoToMeeting, BlueJeans, Whereby, Jitsi, Discord, Skype
                     </p>
                   </div>
                 ) : (
