@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Button from "../../components/Button";
 import Tooltip from "../../components/Tooltip";
-import { setActiveTab } from "../../store/slices/subscriptionSlice";
+import { setActiveTab, setSubscriptionData } from "../../store/slices/subscriptionSlice";
 import {
   COMPANY_ID,
   getSubscriptionPackagesApi,
@@ -126,7 +126,9 @@ const SubscriptionPage = () => {
       const res = await getPurchasedSubscriptionsApi(COMPANY_ID);
 
       if (res?.data && res.data.length > 0) {
-        setPurchasedSubscription(res.data[0]);
+        const subscription = res.data[0];
+        setPurchasedSubscription(subscription);
+        dispatch(setSubscriptionData(subscription)); // store globally
       }
     } catch (err) {
       console.error("Fetch purchased subscriptions error:", err);
@@ -193,6 +195,7 @@ const SubscriptionPage = () => {
 
           fetchPackages();
           fetchPurchasedPlans();
+          fetchPurchasedSubscriptions();
         } catch (err) {
           console.error("Verify payment error:", err);
         }

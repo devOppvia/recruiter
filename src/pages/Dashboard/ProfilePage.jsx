@@ -394,7 +394,7 @@ const ProfilePage = () => {
           >
             <CheckCircle2 size={20} strokeWidth={3} />
             <span className="text-xs font-black uppercase tracking-widest">
-              Settings updated successfully!
+              Settings updated request sent successfully!
             </span>
           </motion.div>
         )}

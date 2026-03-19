@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Button from "../Button";
 import NotificationDropdown from "../NotificationDropdown";
+import SubscriptionAlert from "../SubscriptionAlert";
 import {
   getCompanyDetailsApi,
   getCompanyProfileDetailsApi,
@@ -199,6 +200,7 @@ const DashboardLayout = () => {
   if (isSidebar) {
     return (
       <>
+        <SubscriptionAlert />
         <div className="min-h-screen flex">
           <motion.aside
             initial={{ x: -20, opacity: 0 }}
@@ -440,7 +442,9 @@ const DashboardLayout = () => {
   // NAVBAR LAYOUT (default)
   // ──────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden">
+    <>
+      <SubscriptionAlert />
+      <div className="min-h-screen flex flex-col overflow-x-hidden">
       <header className="sticky top-0 z-50 px-2 sm:px-4 2xl:px-8 py-3 2xl:py-4">
         <div className="w-full flex items-center justify-between gap-2 lg:gap-4 2xl:gap-6">
           <div className="flex items-center bg-brand-primary/5 gap-2 lg:gap-3 glass-morphism rounded-full px-3 lg:px-5 py-2 lg:py-2.5 shadow-glass border border-white/60 shrink-0">
@@ -712,6 +716,7 @@ const DashboardLayout = () => {
         )}
       </AnimatePresence>
     </div>
+    </>
   );
 };
 

@@ -312,7 +312,9 @@ const SupportPage = () => {
                       {/* Overlay */}
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-4 rounded-xl">
                         {/* View Button */}
-                        <h2 className="text-white text-sm font-bold">Attachment</h2>
+                        <h2 className="text-white text-sm font-bold">
+                          Attachment
+                        </h2>
                         <div className="flex gap-4">
                           <button
                             onClick={() =>
@@ -358,7 +360,7 @@ const SupportPage = () => {
                         className={`max-w-[70%] space-y-2 ${!msg.isRepliedByAdmin ? "text-right" : ""}`}
                       >
                         <div
-                          className={`p-6 rounded-[24px] text-sm font-bold leading-relaxed shadow-soft border ${
+                          className={`p-6 rounded-[24px] break-words  max-w-100  text-sm font-bold leading-relaxed shadow-soft border ${
                             !msg.isRepliedByAdmin
                               ? "bg-brand-primary text-white border-brand-primary"
                               : "bg-white text-brand-primary/80 border-brand-primary/5"

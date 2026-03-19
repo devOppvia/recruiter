@@ -1366,7 +1366,7 @@ const CreateJobWizard = () => {
                       key={plan.id}
                       onClick={() => setSelectedPlanId(plan.subscriptionId)}
                       className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                        selectedPlanId === plan.id
+                        selectedPlanId === plan.subscriptionId
                           ? "border-brand-primary bg-brand-primary/5"
                           : "border-brand-primary/10 hover:border-brand-primary/30"
                       }`}
@@ -1411,12 +1411,12 @@ const CreateJobWizard = () => {
                         </div>
                         <div
                           className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                            selectedPlanId === plan.id
+                            selectedPlanId === plan.subscriptionId
                               ? "border-brand-primary bg-brand-primary"
                               : "border-brand-primary/30"
                           }`}
                         >
-                          {selectedPlanId === plan.id && (
+                          {selectedPlanId === plan.subscriptionId && (
                             <CheckCircle2 size={14} className="text-white" />
                           )}
                         </div>

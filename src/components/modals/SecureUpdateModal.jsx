@@ -65,6 +65,16 @@ const SecureUpdateModal = () => {
     }
   };
 
+  const handleKeyDown = (idx, e) => {
+    if (e.key === "Backspace") {
+      // If current field is empty → move to previous
+      if (!otp[idx] && idx > 0) {
+        const prevInput = document.getElementById(`otp-${idx - 1}`);
+        prevInput?.focus();
+      }
+    }
+  };
+
   const resetOtp = () => {
     setOtp(["", "", "", ""]);
     setTimer(30);
@@ -129,7 +139,7 @@ const SecureUpdateModal = () => {
         toast.success(`${isEmail ? "Email" : "Mobile"} updated successfully`);
       }
     } catch (error) {
-      toast.error(error?.message || "Something went wrong");
+      toast.error(error || "Something went wrong");
     }
   };
 
@@ -246,6 +256,7 @@ const SecureUpdateModal = () => {
                         maxLength="1"
                         value={digit}
                         onChange={(e) => handleOtpChange(idx, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(idx, e)} // 👈 ADD THIS
                         className="w-12 h-14 bg-brand-primary/5 rounded-2xl border text-center font-black text-xl text-brand-primary shadow-soft focus:ring-4 focus:ring-brand-primary/5 outline-none transition-all"
                       />
                     ))}

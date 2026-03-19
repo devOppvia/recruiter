@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   activeTab: "plans",
   currentPlanId: null, // store active plan id globally
+  subscriptionData: null, // stores subscription data globally
 };
 
 const subscriptionSlice = createSlice({
@@ -16,9 +17,13 @@ const subscriptionSlice = createSlice({
     setCurrentPlanId: (state, action) => {
       state.currentPlanId = action.payload;
     },
+
+    setSubscriptionData: (state, action) => {
+      state.subscriptionData = action.payload;
+    },
   },
 });
 
-export const { setActiveTab, setCurrentPlanId } = subscriptionSlice.actions;
+export const { setActiveTab, setCurrentPlanId, setSubscriptionData } = subscriptionSlice.actions;
 
 export default subscriptionSlice.reducer;
