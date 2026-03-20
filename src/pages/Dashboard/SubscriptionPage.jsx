@@ -21,7 +21,6 @@ import {
   setSubscriptionData,
 } from "../../store/slices/subscriptionSlice";
 import {
-  COMPANY_ID,
   getSubscriptionPackagesApi,
   getPurchasedSubscriptionsApi,
   subscriptionApi,
@@ -85,16 +84,23 @@ const SubscriptionPage = () => {
   const dispatch = useDispatch();
   const { activeTab } = useSelector((state) => state.subscription);
   console.log("active tab : ", activeTab);
+
+  // Get COMPANY_ID dynamically to ensure it's available
+  const [companyId, setCompanyId] = useState(() => {
+    const userData = localStorage.getItem("userData");
+    return userData ? JSON.parse(userData)?.id : "";
+  });
+
   const [plans, setPlans] = useState([]);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Initialize as true to prevent flash
   const [purchasedSubscription, setPurchasedSubscription] = useState(null);
 
   const fetchPackages = async () => {
     setLoading(true);
     try {
-      const res = await getSubscriptionPackagesApi(COMPANY_ID);
+      const res = await getSubscriptionPackagesApi(companyId);
 
       if (res?.data) {
         setPlans(res.data);
@@ -114,7 +120,7 @@ const SubscriptionPage = () => {
   };
   const fetchPurchasedPlans = async () => {
     try {
-      const res = await getPaymentHistoryApi(COMPANY_ID);
+      const res = await getPaymentHistoryApi(companyId);
 
       if (res?.data) {
         setPaymentHistory(res.data);
@@ -126,7 +132,7 @@ const SubscriptionPage = () => {
 
   const fetchPurchasedSubscriptions = async () => {
     try {
-      const res = await getPurchasedSubscriptionsApi(COMPANY_ID);
+      const res = await getPurchasedSubscriptionsApi(companyId);
 
       if (res?.data && res.data.length > 0) {
         const subscription = res.data[0];
@@ -139,17 +145,20 @@ const SubscriptionPage = () => {
   };
 
   useEffect(() => {
-    if (COMPANY_ID) {
+    if (companyId) {
       fetchPackages();
       fetchPurchasedPlans();
       fetchPurchasedSubscriptions();
+    } else {
+      // If no companyId, stop loading to show the UI (will show empty state)
+      setLoading(false);
     }
-  }, [COMPANY_ID]);
+  }, [companyId]);
 
   const handleSubscriptionClick = async (plan) => {
     try {
       const body = {
-        companyId: COMPANY_ID,
+        companyId: companyId,
         amount: plan?.discountedPrice,
         currency: "INR",
         subsciptionPlanId: plan?.id,
@@ -210,6 +219,36 @@ const SubscriptionPage = () => {
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
+
+  // Show loading state while fetching data
+  if (loading) {
+    return (
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="space-y-10 pb-10"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-black text-brand-primary text-editorial tracking-tighter">
+              Billing &{" "}
+              <span className="text-brand-primary/40">Subscription</span>
+            </h1>
+            <p className="text-sm font-bold text-brand-primary/30">
+              Manage your recruitment power and billing history.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-20">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 border-2 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin" />
+            <span className="text-sm font-bold text-brand-primary/60">Loading...</span>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -286,7 +325,7 @@ const SubscriptionPage = () => {
             </div>
             <button
               onClick={() => dispatch(setActiveTab("plans"))}
-              className="px-6 py-3 text-red-500 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-600 transition-colors"
+              className="px-6 py-3 text-red-500 rounded-xl text-xs font-black uppercase tracking-widest "
             >
               Subscribe Now
             </button>

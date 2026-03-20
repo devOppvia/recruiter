@@ -134,14 +134,14 @@ const JobDetailsModal = ({ job, isOpen, onClose }) => {
                 </div>
               </div>
 
-              <div className="mt-8 flex gap-3">
+              {/* <div className="mt-8 flex gap-3">
                 <Button className="flex-1 rounded-2xl py-4 font-black uppercase tracking-widest text-xs h-auto shadow-soft">
                   Edit Posting
                 </Button>
                 <button className="p-4 bg-white rounded-2xl text-brand-primary/40 hover:text-brand-primary shadow-soft transition-all">
                   <Share2 size={20} />
                 </button>
-              </div>
+              </div> */}
             </div>
 
             {/* Right: Full Details Content (Scrollable) */}

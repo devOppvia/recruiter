@@ -38,6 +38,7 @@ import {
   generateJobPositionTitleApi,
 } from "../../helper/api";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const BENEFIT_OPTIONS = [
   "Certificate",
@@ -104,6 +105,8 @@ const CreateJobWizard = () => {
   const [isGeneratingOther, setIsGeneratingOther] = React.useState(false);
   const [aiSuggestedTitles, setAiSuggestedTitles] = React.useState([]);
   const [isLoadingTitles, setIsLoadingTitles] = React.useState(false);
+  const [stipendValidationError, setStipendValidationError] =
+    React.useState("");
   const companyId = localStorage.getItem("companyId");
   const { isWizardOpen, currentStep, draft } = useSelector(
     (state) => state.jobs,
@@ -200,6 +203,46 @@ const CreateJobWizard = () => {
     }
   }, [draft.jobSubCategoryId, fetchSkills]);
 
+  // Validate min/max stipend/salary in real-time
+  React.useEffect(() => {
+    const validateStipend = () => {
+      if (
+        draft.applicationType === "Internship" &&
+        draft.stipend.type === "Paid"
+      ) {
+        const min = Number(draft.stipend.minAmount);
+        const max = Number(draft.stipend.maxAmount);
+        if (min && max && min > max) {
+          setStipendValidationError(
+            "Minimum stipend cannot be greater than maximum stipend",
+          );
+        } else {
+          setStipendValidationError("");
+        }
+      } else if (draft.applicationType === "Job") {
+        const min = Number(draft.salary.minAmount);
+        const max = Number(draft.salary.maxAmount);
+        if (min && max && min > max) {
+          setStipendValidationError(
+            "Minimum salary cannot be greater than maximum salary",
+          );
+        } else {
+          setStipendValidationError("");
+        }
+      } else {
+        setStipendValidationError("");
+      }
+    };
+    validateStipend();
+  }, [
+    draft.stipend.minAmount,
+    draft.stipend.maxAmount,
+    draft.salary.minAmount,
+    draft.salary.maxAmount,
+    draft.applicationType,
+    draft.stipend.type,
+  ]);
+
   // Fetch AI suggested titles when category and subcategory are selected
   React.useEffect(() => {
     const fetchAiTitles = async () => {
@@ -224,7 +267,13 @@ const CreateJobWizard = () => {
       }
     };
     fetchAiTitles();
-  }, [draft.jobCategoryId, draft.jobSubCategoryId, draft.category, draft.subCategory, draft.applicationType]);
+  }, [
+    draft.jobCategoryId,
+    draft.jobSubCategoryId,
+    draft.category,
+    draft.subCategory,
+    draft.applicationType,
+  ]);
 
   // console.log("isWizard Open")
 
@@ -313,10 +362,16 @@ const CreateJobWizard = () => {
           if (draft.stipend.type === "Paid") {
             if (!draft.stipend.minAmount || !draft.stipend.maxAmount)
               return "Stipend amount is required";
+            if (
+              Number(draft.stipend.minAmount) > Number(draft.stipend.maxAmount)
+            )
+              return "Minimum stipend cannot be greater than maximum stipend";
           }
         } else {
           if (!draft.salary.minAmount || !draft.salary.maxAmount)
             return "Salary amount is required";
+          if (Number(draft.salary.minAmount) > Number(draft.salary.maxAmount))
+            return "Minimum salary cannot be greater than maximum salary";
         }
         if (draft.skills.length === 0) return "At least one skill is required";
         return true;
@@ -578,15 +633,22 @@ const CreateJobWizard = () => {
                   <div className="space-y-2">
                     <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40 px-1 flex items-center gap-2">
                       {isLoadingTitles ? (
-                        <Loader2 size={12} className="animate-spin text-brand-accent" />
+                        <Loader2
+                          size={12}
+                          className="animate-spin text-brand-accent"
+                        />
                       ) : (
                         <Sparkles size={12} className="text-brand-accent" />
                       )}
-                      {isLoadingTitles ? "Generating Titles..." : "AI Suggested Titles"}
+                      {isLoadingTitles
+                        ? "Generating Titles..."
+                        : "AI Suggested Titles"}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {isLoadingTitles ? (
-                        <p className="text-xs text-brand-primary/40">Loading suggestions...</p>
+                        <p className="text-xs text-brand-primary/40">
+                          Loading suggestions...
+                        </p>
                       ) : aiSuggestedTitles.length > 0 ? (
                         aiSuggestedTitles.map((title) => (
                           <button
@@ -603,7 +665,9 @@ const CreateJobWizard = () => {
                           </button>
                         ))
                       ) : (
-                        <p className="text-xs text-brand-primary/40">No suggestions available</p>
+                        <p className="text-xs text-brand-primary/40">
+                          No suggestions available
+                        </p>
                       )}
                     </div>
                   </div>
@@ -803,81 +867,93 @@ const CreateJobWizard = () => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="grid grid-cols-2 gap-4 pt-2"
+                        className="space-y-2"
                       >
-                        <Input
-                          label={
-                            draft.applicationType === "Job"
-                              ? "Min Salary"
-                              : "Min Stipend (₹)"
-                          }
-                          placeholder={
-                            draft.applicationType === "Job" ? "350000" : "5000"
-                          }
-                          type="number"
-                          value={
-                            draft.applicationType === "Job"
-                              ? draft.salary.minAmount
-                              : draft.stipend.minAmount
-                          }
-                          onChange={(e) =>
-                            draft.applicationType === "Job"
-                              ? dispatch(
-                                  updateDraft({
-                                    salary: {
-                                      ...draft.salary,
-                                      minAmount: e.target.value,
-                                    },
-                                  }),
-                                )
-                              : dispatch(
-                                  updateDraft({
-                                    stipend: {
-                                      ...draft.stipend,
-                                      minAmount: e.target.value,
-                                      amount: e.target.value,
-                                    },
-                                  }),
-                                )
-                          }
-                          className="bg-white rounded-2xl border-none shadow-soft h-14 text-sm font-bold"
-                        />
-                        <Input
-                          label={
-                            draft.applicationType === "Job"
-                              ? "Max Salary"
-                              : "Max Stipend (₹)"
-                          }
-                          placeholder={
-                            draft.applicationType === "Job" ? "650000" : "10000"
-                          }
-                          type="number"
-                          value={
-                            draft.applicationType === "Job"
-                              ? draft.salary.maxAmount
-                              : draft.stipend.maxAmount
-                          }
-                          onChange={(e) =>
-                            draft.applicationType === "Job"
-                              ? dispatch(
-                                  updateDraft({
-                                    salary: {
-                                      ...draft.salary,
-                                      maxAmount: e.target.value,
-                                    },
-                                  }),
-                                )
-                              : dispatch(
-                                  updateDraft({
-                                    stipend: {
-                                      ...draft.stipend,
-                                      maxAmount: e.target.value,
-                                    },
-                                  }),
-                                )
-                          }
-                          className="bg-white rounded-2xl border-none shadow-soft h-14 text-sm font-bold"
-                        />
+                        <div className="grid grid-cols-2 gap-4">
+                          <Input
+                            label={
+                              draft.applicationType === "Job"
+                                ? "Min Salary"
+                                : "Min Stipend (₹)"
+                            }
+                            placeholder={
+                              draft.applicationType === "Job"
+                                ? "350000"
+                                : "5000"
+                            }
+                            type="number"
+                            value={
+                              draft.applicationType === "Job"
+                                ? draft.salary.minAmount
+                                : draft.stipend.minAmount
+                            }
+                            onChange={(e) =>
+                              draft.applicationType === "Job"
+                                ? dispatch(
+                                    updateDraft({
+                                      salary: {
+                                        ...draft.salary,
+                                        minAmount: e.target.value,
+                                      },
+                                    }),
+                                  )
+                                : dispatch(
+                                    updateDraft({
+                                      stipend: {
+                                        ...draft.stipend,
+                                        minAmount: e.target.value,
+                                        amount: e.target.value,
+                                      },
+                                    }),
+                                  )
+                            }
+                            className="bg-white rounded-2xl border-none shadow-soft h-14 text-sm font-bold"
+                          />
+                          <Input
+                            label={
+                              draft.applicationType === "Job"
+                                ? "Max Salary"
+                                : "Max Stipend (₹)"
+                            }
+                            placeholder={
+                              draft.applicationType === "Job"
+                                ? "650000"
+                                : "10000"
+                            }
+                            type="number"
+                            value={
+                              draft.applicationType === "Job"
+                                ? draft.salary.maxAmount
+                                : draft.stipend.maxAmount
+                            }
+                            onChange={(e) =>
+                              draft.applicationType === "Job"
+                                ? dispatch(
+                                    updateDraft({
+                                      salary: {
+                                        ...draft.salary,
+                                        maxAmount: e.target.value,
+                                      },
+                                    }),
+                                  )
+                                : dispatch(
+                                    updateDraft({
+                                      stipend: {
+                                        ...draft.stipend,
+                                        maxAmount: e.target.value,
+                                      },
+                                    }),
+                                  )
+                            }
+                            className="bg-white rounded-2xl border-none shadow-soft h-14 text-sm font-bold"
+                          />
+                        </div>
+                        {stipendValidationError && (
+                          <p className="text-xs font-bold text-red-500 flex items-center gap-1 px-1">
+                            <CircleAlert size={12} />
+                            {stipendValidationError}
+                          </p>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -974,7 +1050,10 @@ const CreateJobWizard = () => {
                   className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isGeneratingAbout ? (
-                    <Loader2 size={16} className="animate-spin text-brand-accent" />
+                    <Loader2
+                      size={16}
+                      className="animate-spin text-brand-accent"
+                    />
                   ) : (
                     <Sparkles
                       size={16}
@@ -1015,7 +1094,10 @@ const CreateJobWizard = () => {
                       className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isGeneratingOther ? (
-                        <Loader2 size={14} className="animate-spin text-brand-accent" />
+                        <Loader2
+                          size={14}
+                          className="animate-spin text-brand-accent"
+                        />
                       ) : (
                         <Sparkles
                           size={14}
@@ -1244,8 +1326,11 @@ const CreateJobWizard = () => {
                     onClick={() =>
                       currentStep === 3 ? handlePostInternship() : handleNext()
                     }
-                    disabled={isSubmitting}
-                    className="rounded-2xl px-10 py-5 h-auto shadow-soft bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center gap-3 min-w-[180px] justify-center"
+                    disabled={
+                      isSubmitting ||
+                      (currentStep === 2 && !!stipendValidationError)
+                    }
+                    className="rounded-2xl px-10 py-5 h-auto shadow-soft bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center gap-3 min-w-[180px] justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -1465,36 +1550,45 @@ const CreateJobWizard = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-brand-primary/50 text-center py-6">
+                <p className="text-sm text-brand-primary/50 min-h-40 text-center py-6">
                   No plans available
                 </p>
               )}
 
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => {
-                    setShowPlanSelectModal(false);
-                    setSelectedPlanId(null);
-                  }}
-                  variant="outline"
-                  className="flex-1 rounded-2xl py-4 h-auto border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5 font-black uppercase tracking-widest text-xs"
-                >
-                  Discard
-                </Button>
-                <Button
-                  onClick={handlePlanSelectAndPost}
-                  disabled={!selectedPlanId || isSubmitting}
-                  className="flex-1 rounded-2xl py-4 h-auto bg-brand-primary hover:bg-brand-primary-light font-black uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <Save size={14} className="mr-2" /> Post Job
-                    </>
-                  )}
-                </Button>
-              </div>
+              {purchasedPlans.length > 0 ? (
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => {
+                      setShowPlanSelectModal(false);
+                      setSelectedPlanId(null);
+                    }}
+                    variant="outline"
+                    className="flex-1 rounded-2xl py-4 h-auto border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5 font-black uppercase tracking-widest text-xs"
+                  >
+                    Discard
+                  </Button>
+                  <Button
+                    onClick={handlePlanSelectAndPost}
+                    disabled={!selectedPlanId || isSubmitting}
+                    className="flex-1 rounded-2xl py-4 h-auto bg-brand-primary hover:bg-brand-primary-light font-black uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Save size={14} className="mr-2" /> Post Job
+                      </>
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-3 justify-center">
+                  <h2>No plans available</h2>{" "}
+                  <Link to="/dashboard/subscription" className="underline">
+                    Subscribe Now
+                  </Link>
+                </div>
+              )}
             </motion.div>
           </div>
         )}

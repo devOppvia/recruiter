@@ -21,6 +21,7 @@ const SupportModal = () => {
     priority: "medium",
     message: "",
   });
+  const [errors, setErrors] = useState({});
 
   const categories = [
     "Technical",
@@ -31,10 +32,36 @@ const SupportModal = () => {
   ];
   const priorities = ["low", "medium", "high"];
   console.log("comapny data : ", reduxCompany);
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.subject.trim()) {
+      newErrors.subject = "Subject is required";
+    } else if (formData.subject.length > 50) {
+      newErrors.subject = "Subject cannot exceed 50 characters";
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+    } else if (formData.message.length > 500) {
+      newErrors.message = "Message cannot exceed 500 characters";
+    }
+
+    if (attachment) {
+      const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"];
+      if (!allowedTypes.includes(attachment.type)) {
+        newErrors.attachment = "Only PDF and image files are allowed";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.subject || !formData.message) return;
+    if (!validateForm()) return;
 
     try {
       const formDataApi = new FormData();
@@ -126,15 +153,21 @@ const SupportModal = () => {
 
           {/* Form Body */}
           <form onSubmit={handleSubmit} className="p-10 space-y-6">
-            <Input
-              label="Subject"
-              placeholder="Brief description of the issue"
-              value={formData.subject}
-              onChange={(e) =>
-                setFormData({ ...formData, subject: e.target.value })
-              }
-              className="bg-brand-primary/2 rounded-2xl border-none shadow-soft"
-            />
+            <div>
+              <Input
+                label="Subject"
+                placeholder="Brief description of the issue"
+                value={formData.subject}
+                onChange={(e) =>
+                  setFormData({ ...formData, subject: e.target.value })
+                }
+                error={errors.subject}
+                className="bg-brand-primary/2 rounded-2xl border-none shadow-soft"
+              />
+              <p className="text-[10px] text-brand-primary/40 font-bold mt-1 text-right">
+                {formData.subject.length}/50
+              </p>
+            </div>
 
             <div className="grid grid-cols-2 gap-6">
               <Select
@@ -151,15 +184,21 @@ const SupportModal = () => {
               />
             </div>
 
-            <Textarea
-              label="Message"
-              placeholder="Detailed explanation..."
-              value={formData.message}
-              onChange={(e) =>
-                setFormData({ ...formData, message: e.target.value })
-              }
-              className="bg-brand-primary/2 rounded-2xl border-none shadow-soft h-32"
-            />
+            <div>
+              <Textarea
+                label="Message"
+                placeholder="Detailed explanation..."
+                value={formData.message}
+                onChange={(e) =>
+                  setFormData({ ...formData, message: e.target.value })
+                }
+                error={errors.message}
+                className="bg-brand-primary/2 rounded-2xl border-none shadow-soft h-32"
+              />
+              <p className="text-[10px] text-brand-primary/40 font-bold mt-1 text-right">
+                {formData.message.length}/500
+              </p>
+            </div>
             <div>
               <label className="block text-[11px] font-black text-brand-primary/40 uppercase tracking-widest mb-2">
                 Attachment
@@ -167,13 +206,22 @@ const SupportModal = () => {
 
               <input
                 type="file"
-                onChange={(e) => setAttachment(e.target.files[0])}
+                accept="application/pdf,image/jpeg,image/png,image/gif,image/webp"
+                onChange={(e) => {
+                  setAttachment(e.target.files[0] || null);
+                  setErrors((prev) => ({ ...prev, attachment: null }));
+                }}
                 className="w-full text-sm font-bold file:mr-4 file:px-4 file:py-2 file:rounded-xl file:border-0 file:bg-brand-primary file:text-white file:cursor-pointer bg-brand-primary/2 p-3 rounded-2xl"
               />
 
               {attachment && (
                 <p className="text-[10px] mt-2 text-brand-primary/40 font-bold">
                   Selected: {attachment.name}
+                </p>
+              )}
+              {errors.attachment && (
+                <p className="text-[10px] mt-1 text-red-500 font-bold">
+                  {errors.attachment}
                 </p>
               )}
             </div>
@@ -204,7 +252,7 @@ const SupportModal = () => {
             <Button
               onClick={handleSubmit}
               className="rounded-2xl px-8 py-4 h-auto shadow-soft bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center gap-2 group"
-              disabled={!formData.subject || !formData.message}
+              disabled={!formData.subject || !formData.message || formData.subject.length > 50 || formData.message.length > 500}
             >
               <span className="font-black uppercase tracking-widest text-[10px]">
                 Submit Request

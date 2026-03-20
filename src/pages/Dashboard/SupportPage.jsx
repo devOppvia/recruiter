@@ -242,7 +242,7 @@ const SupportPage = () => {
                   <span
                     className={`text-[10px] font-black uppercase tracking-widest ${activeTicketId === ticket.id ? "text-white/60" : "text-brand-primary/40"}`}
                   >
-                    {ticket.id}
+                    {ticket.ticketType}
                   </span>
                   <div
                     className={`px-2.5 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest border ${
@@ -255,7 +255,7 @@ const SupportPage = () => {
                   </div>
                 </div>
                 <h3
-                  className={`text-sm font-black tracking-tight mb-2 line-clamp-1 ${activeTicketId === ticket.id ? "text-white" : "text-brand-primary"}`}
+                  className={`text-xl font-black tracking-tight mb-2 line-clamp-1 ${activeTicketId === ticket.id ? "text-white" : "text-brand-primary"}`}
                 >
                   {ticket.subject}
                 </h3>
@@ -268,7 +268,9 @@ const SupportPage = () => {
                   <span
                     className={`text-[10px] font-bold truncate ${activeTicketId === ticket.id ? "text-white/40" : "text-brand-primary/30"}`}
                   >
-                    {ticket.lastMessage}
+                    {new Date(ticket.createdAt).toString(
+                      "dd/MM/yyyy hh:mm a"
+                    )}
                   </span>
                 </div>
               </motion.div>
@@ -336,7 +338,7 @@ const SupportPage = () => {
                 {/* Messages Area */}
                 <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar bg-brand-primary/[0.01]">
                   {activeTicket?.attachment && ticketAttachmentUrl && (
-                    <div className="relative group h-40 w-fit p-4 border rounded-xl mx-auto overflow-hidden">
+                    <div className="relative group h-40 min-w-60 w-fit p-4 border rounded-xl mx-auto overflow-hidden">
                       <img
                         src={ticketAttachmentUrl}
                         alt="attachment"
