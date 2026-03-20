@@ -91,6 +91,22 @@ const SubscriptionPage = () => {
     return userData ? JSON.parse(userData)?.id : "";
   });
 
+  // Keep companyId in sync with localStorage (handles case when user logs in while already on the page)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const userData = localStorage.getItem("userData");
+      const newId = userData ? JSON.parse(userData)?.id : "";
+      setCompanyId(newId);
+    };
+
+    // Check on mount and set up listener for changes
+    handleStorageChange();
+
+    // Optional: Poll for changes if localStorage changes without page refresh
+    const interval = setInterval(handleStorageChange, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const [plans, setPlans] = useState([]);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
