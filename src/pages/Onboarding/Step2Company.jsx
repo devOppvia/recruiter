@@ -235,12 +235,19 @@ const Step2Company = ({ onNext, onBack, data, updateData }) => {
 
     if (!data.industry) newErrors.industry = "Required";
     if (!data.companySize) newErrors.companySize = "Required";
-    if (!data.foundedYear) newErrors.foundedYear = "Required";
+    if (!data.foundedYear) {
+      newErrors.foundedYear = "Required";
+    } else if (parseInt(data.foundedYear) > new Date().getFullYear()) {
+      newErrors.foundedYear = "Cannot be a future year";
+    }
     if (!data.registrationNumber) newErrors.registrationNumber = "Required";
 
     const wordCount = data.description?.trim().split(/\s+/).length || 0;
+    const charCount = data.description?.length || 0;
     if (!data.description) {
       newErrors.description = "Required";
+    } else if (charCount > 300) {
+      newErrors.description = `Exceeds limit by ${charCount - 300} characters (max 300)`;
     } else if (wordCount < 20) {
       newErrors.description = `Need ${20 - wordCount} more words (min 20)`;
     }
@@ -572,13 +579,12 @@ const Step2Company = ({ onNext, onBack, data, updateData }) => {
               value={data.description || ""}
               onChange={(e) => updateData({ description: e.target.value })}
             />
-            <div className="absolute bottom-5 right-6 px-3 py-1 bg-white border border-brand-primary/10 rounded-full shadow-soft flex items-center gap-2">
-              <span className="text-[10px] font-black text-brand-primary/40 tabular-nums uppercase tracking-widest">
-                {data.description?.trim().split(/\s+/).filter(Boolean).length ||
-                  0}{" "}
-                <span className="opacity-40">Words</span>
-              </span>
-            </div>
+              <div className="absolute bottom-5 right-6 px-3 py-1 bg-white border border-brand-primary/10 rounded-full shadow-soft flex items-center gap-2">
+                <span className="text-[10px] font-black text-brand-primary/40 tabular-nums uppercase tracking-widest">
+                  {data.description?.length || 0}
+                  <span className="opacity-40">/300</span>
+                </span>
+              </div>
           </div>
         </div>
       </div>

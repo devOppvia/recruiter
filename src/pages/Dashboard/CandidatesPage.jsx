@@ -18,6 +18,7 @@ import {
   Eye,
   CheckCheck,
   CheckSquareIcon,
+  Briefcase,
 } from "lucide-react";
 import Badge from "../../components/Badge";
 import Button from "../../components/Button";
@@ -554,10 +555,10 @@ const CandidatesPage = () => {
                                 </p>
                                 <div className="flex items-center gap-3">
                                   <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-brand-primary/40 shadow-soft">
-                                    <MapPin size={14} strokeWidth={2.5} />
+                                    <Briefcase size={14} strokeWidth={2.5} />
                                   </div>
                                   <span className="text-xs font-black text-brand-primary/70">
-                                    {c.intern.experience || "NA"}
+                                    {c.intern.experience !== "" && c.intern.experience !== "0" ? c.intern.experience : "NA"}
                                   </span>
                                 </div>
                               </div>

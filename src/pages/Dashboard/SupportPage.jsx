@@ -33,9 +33,10 @@ import {
   addSupportMessageApi,
   COMPANY_ID,
 } from "../../helper/api";
+import { io } from "socket.io-client";
 
 const IMG_URL = import.meta.env.VITE_IMG_URL;
-
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 const SupportPage = () => {
   const dispatch = useDispatch();
   const { tickets, activeTicketId } = useSelector((state) => state.support);
@@ -45,6 +46,7 @@ const SupportPage = () => {
   const [ticketsData, setTicketsData] = useState([]);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const socketRef = useRef(null);
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
@@ -90,7 +92,7 @@ const SupportPage = () => {
 
       if (res?.status) {
         setReplyText("");
-        fetchMessages(activeTicketId);
+        // fetchMessages(activeTicketId);
         setSelectedFile(null);
         setFilePreview(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -150,6 +152,34 @@ const SupportPage = () => {
     if (activeTicketId) {
       fetchMessages(activeTicketId);
     }
+    if (activeTicketId && socketRef.current) {
+      socketRef.current.emit("join_support", activeTicketId);
+    }
+  }, [activeTicketId]);
+
+  useEffect(() => {
+    socketRef.current = io(SOCKET_URL);
+
+    // register company
+    socketRef.current.emit("register_company", COMPANY_ID);
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    socketRef.current.on("new_message", (data) => {
+      if (data.supportId === activeTicketId) {
+        setMessages((prev) => [...prev, data]);
+      }
+    });
+
+    return () => {
+      socketRef.current.off("new_message");
+    };
   }, [activeTicketId]);
 
   const ticketAttachmentUrl =
@@ -268,9 +298,7 @@ const SupportPage = () => {
                   <span
                     className={`text-[10px] font-bold truncate ${activeTicketId === ticket.id ? "text-white/40" : "text-brand-primary/30"}`}
                   >
-                    {new Date(ticket.createdAt).toString(
-                      "dd/MM/yyyy hh:mm a"
-                    )}
+                    {new Date(ticket.createdAt).toString("dd/MM/yyyy hh:mm a")}
                   </span>
                 </div>
               </motion.div>

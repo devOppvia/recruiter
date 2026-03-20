@@ -452,6 +452,7 @@ const CreateJobWizard = () => {
       const payload = {
         aboutJob: draft.description,
         additionalBenefits: draft.benefits,
+        applicationType: draft.applicationType === "Job" ? "JOB" : "INTERNSHIP",
         companyId: companyId,
         internshipDuration: draft.duration,
         jobCategoryId: draft.jobCategoryId,
@@ -480,6 +481,83 @@ const CreateJobWizard = () => {
         workingHours: draft.workingHours,
         subscriptionId: selectedPlanId,
       };
+
+      if (draft.experienceRange) {
+        payload.experience = draft.experienceRange;
+      }
+
+      const response = await createJobOpeningApi(payload);
+      if (response.status) {
+        toast.success(response.message || "Job posted successfully!");
+        localStorage.removeItem("oppvia_job_draft");
+        handleClose();
+        setShowInReviewModal(true);
+      } else {
+        toast.error(response.message || "Failed to post job");
+      }
+    } catch (error) {
+      console.error("Post Job Error:", error);
+      toast.error(error || "An error occurred while posting the job");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handelSaveDraft = async () => {
+    setIsSubmitting(true);
+    try {
+      const locationString =
+        draft.location || (draft.workType === "REMOTE" ? "Remote" : "");
+      let geoInfo = { city: "", state: "" };
+
+      if (locationString && locationString !== "Remote") {
+        geoInfo = await geocodeAddress(locationString);
+      }
+
+      // const jobDaysActive = purchasedPlans.find(
+      //   (plan) => plan.id === selectedPlanId,
+      // )?.jobActiveDays;
+
+      // const resumeAccessCredits = purchasedPlans.find(
+      //   (plan) => plan.id === selectedPlanId,
+      // )?.jobActiveDays;
+
+      const payload = {
+        aboutJob: draft.description,
+        additionalBenefits: draft.benefits,
+        applicationType: draft.applicationType === "Job" ? "JOB" : "INTERNSHIP",
+        companyId: companyId,
+        internshipDuration: draft.duration,
+        jobCategoryId: draft.jobCategoryId,
+        jobSubCategoryId: draft.jobSubCategoryId,
+        jobTitle: draft.title,
+        jobType: draft.workType.toUpperCase(), // Matches values like 'REMOTE'
+        location: locationString,
+        city: geoInfo.city,
+        state: geoInfo.state,
+        maxStipend:
+          draft.applicationType === "Internship"
+            ? Number(draft.stipend.maxAmount)
+            : Number(draft.salary.maxAmount),
+        minStipend:
+          draft.applicationType === "Internship"
+            ? Number(draft.stipend.minAmount)
+            : Number(draft.salary.minAmount),
+        numberOfOpenings: Number(draft.internsRequired),
+        otherRequirements: draft.otherInfo,
+        skills: draft.skills,
+        stipend:
+          draft.applicationType === "Internship" &&
+          draft.stipend.type === "Paid"
+            ? "YES"
+            : "NO",
+        workingHours: draft.workingHours,
+        jobStatus: "DRAFT",
+      };
+
+      if (draft.experienceRange) {
+        payload.experience = draft.experienceRange;
+      }
 
       const response = await createJobOpeningApi(payload);
       if (response.status) {
@@ -802,12 +880,16 @@ const CreateJobWizard = () => {
                   <Select
                     label={"Internship Duration"}
                     options={[
-                      "1 Month",
-                      "2 Months",
-                      "3 Months",
-                      "4 Months",
-                      "6 Months",
-                      "12 Months",
+                      "0 - 1 year",
+                      "1 - 2 year",
+                      "2 - 3 year",
+                      "3 - 4 year",
+                      "4 - 5 year",
+                      "5 - 6 year",
+                      "6 - 7 year",
+                      "7 - 8 year",
+                      "8 - 9 year",
+                      "9 - 10 year",
                     ]}
                     value={draft.duration}
                     onChange={(val) => dispatch(updateDraft({ duration: val }))}
@@ -1300,13 +1382,7 @@ const CreateJobWizard = () => {
                 <div className="flex items-center gap-3">
                   <Button
                     variant="ghost"
-                    onClick={() => {
-                      localStorage.setItem(
-                        "oppvia_job_draft",
-                        JSON.stringify(draft),
-                      );
-                      toast.success("Draft saved successfully!");
-                    }}
+                    onClick={handelSaveDraft}
                     className="text-brand-primary/40 font-black uppercase tracking-widest text-[10px] hover:text-brand-primary px-4"
                   >
                     <Save size={14} className="mr-2" /> Save Draft

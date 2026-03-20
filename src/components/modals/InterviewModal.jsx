@@ -76,6 +76,13 @@ const InterviewModal = ({
     notes: "",
   });
   const [platformError, setPlatformError] = useState("");
+  const [timeError, setTimeError] = useState("");
+
+  // Store last used interview details for auto-fill
+  const [lastUsedDetails, setLastUsedDetails] = useState(() => {
+    const saved = localStorage.getItem("lastInterviewDetails");
+    return saved ? JSON.parse(saved) : null;
+  });
 
   const [locations, setLocations] = useState([]);
   const companyId = localStorage.getItem("companyId");
@@ -85,6 +92,31 @@ const InterviewModal = ({
       fetchLocations();
     }
   }, [isOpen, companyId]);
+
+  // Auto-fill form with last used details when modal opens
+  useEffect(() => {
+    if (isOpen && lastUsedDetails) {
+      const now = new Date();
+
+      // Check if saved date/time is valid (not in the past)
+      let isDateTimeValid = true;
+      if (lastUsedDetails.date) {
+        const savedDateTime = new Date(`${lastUsedDetails.date}T${lastUsedDetails.time || "23:59"}`);
+        if (savedDateTime < now) {
+          isDateTimeValid = false;
+        }
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        date: isDateTimeValid && lastUsedDetails.date ? lastUsedDetails.date : "",
+        time: isDateTimeValid && lastUsedDetails.time ? lastUsedDetails.time : "",
+        mode: lastUsedDetails.mode || "Online",
+        platform: lastUsedDetails.platform || "",
+        location: lastUsedDetails.location || "",
+      }));
+    }
+  }, [isOpen, lastUsedDetails]);
 
   const fetchLocations = async () => {
     try {
@@ -108,6 +140,16 @@ const InterviewModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate that selected date/time is not in the past
+    const now = new Date();
+    const selectedDate = new Date(`${formData.date}T${formData.time}`);
+
+    if (selectedDate < now) {
+      setTimeError("Interview cannot be scheduled in the past. Please select a future date and time.");
+      return;
+    }
+    setTimeError("");
 
     // Validate platform link for online interviews
     if (formData.mode === "Online" && formData.platform) {
@@ -164,6 +206,18 @@ const InterviewModal = ({
         if (onInterviewScheduled) {
           onInterviewScheduled();
         }
+
+        // Save last used interview details for auto-fill
+        const detailsToSave = {
+          date: formData.date,
+          time: formData.time,
+          mode: formData.mode,
+          platform: formData.mode === "Online" ? formData.platform : "",
+          location: formData.mode === "Offline" ? formData.location : "",
+        };
+        localStorage.setItem("lastInterviewDetails", JSON.stringify(detailsToSave));
+        setLastUsedDetails(detailsToSave);
+
         setIsSubmitted(true);
         setTimeout(() => {
           handleClose();
@@ -257,9 +311,10 @@ const InterviewModal = ({
                         min={new Date().toISOString().split("T")[0]}
                         className="w-full pl-12 pr-4 py-4 bg-brand-primary/5 border-none rounded-2xl text-xs font-bold text-brand-primary outline-none focus:ring-2 focus:ring-brand-primary/10 transition-all"
                         value={formData.date}
-                        onChange={(e) =>
-                          setFormData({ ...formData, date: e.target.value })
-                        }
+                        onChange={(e) => {
+                          setFormData({ ...formData, date: e.target.value });
+                          setTimeError("");
+                        }}
                       />
                     </div>
                   </div>
@@ -277,11 +332,18 @@ const InterviewModal = ({
                         type="time"
                         className="w-full pl-12 pr-4 py-4 bg-brand-primary/5 border-none rounded-2xl text-xs font-bold text-brand-primary outline-none focus:ring-2 focus:ring-brand-primary/10 transition-all"
                         value={formData.time}
-                        onChange={(e) =>
-                          setFormData({ ...formData, time: e.target.value })
-                        }
+                        onChange={(e) => {
+                          setFormData({ ...formData, time: e.target.value });
+                          setTimeError("");
+                        }}
                       />
                     </div>
+                    {timeError && (
+                      <p className="text-[10px] font-bold text-red-500 flex items-center gap-1 ml-1">
+                        <AlertCircle size={12} />
+                        {timeError}
+                      </p>
+                    )}
                   </div>
                 </div>
 

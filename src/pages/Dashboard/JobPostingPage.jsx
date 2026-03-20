@@ -30,7 +30,11 @@ import CreateJobWizard from "./CreateJobWizard";
 import JobDetailsModal from "./JobDetailsModal";
 import ConfirmModal from "../../components/modals/ConfirmModal";
 import { toggleWizard, setStatusFilter } from "../../store/slices/jobsSlice";
-import { getJobData, deleteJobPostApi } from "../../helper/api";
+import {
+  getJobData,
+  deleteJobPostApi,
+  updateJobStatusApi,
+} from "../../helper/api";
 import toast from "react-hot-toast";
 import { cn } from "../../utils/cn";
 
@@ -55,7 +59,6 @@ const JobPostingPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  
 
   // Debounce search
   useEffect(() => {
@@ -168,6 +171,25 @@ const JobPostingPage = () => {
       y: 0,
       transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
     },
+  };
+
+  const moveToReview = async (jobId) => {
+    try {
+      const response = await updateJobStatusApi(jobId, { jobStatus: "REVIEW" });
+      if (response.status) {
+        toast.success(response.message || "Job moved to review successfully");
+        fetchJobs(); // Refresh the list
+        setIsDeleteModalOpen(false);
+      } else {
+        toast.error(response.message || "Failed to move job to review");
+      }
+    } catch (error) {
+      console.error("Move to Review Error:", error);
+      toast.error(error || "An error occurred while moving the job to review");
+    } finally {
+      setIsDeleting(false);
+      setActiveMenu(null);
+    }
   };
 
   return (
@@ -386,6 +408,14 @@ const JobPostingPage = () => {
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     className="absolute top-16 right-8 w-48 bg-white glass-morphism rounded-2xl shadow-premium z-20 border border-brand-primary/10 overflow-hidden"
                   >
+                    {job.jobStatus === "DRAFT" && (
+                      <button
+                        onClick={() => moveToReview(job.id)}
+                        className="w-full px-5 py-3.5 text-left text-xs font-bold text-blue-500 hover:bg-blue-50 flex items-center gap-3 transition-colors"
+                      >
+                        <Eye size={14} /> Review
+                      </button>
+                    )}
                     <button
                       onClick={() => confirmDelete(job.id)}
                       className="w-full px-5 py-3.5 text-left text-xs font-bold text-red-500 hover:bg-red-50 flex items-center gap-3 transition-colors"

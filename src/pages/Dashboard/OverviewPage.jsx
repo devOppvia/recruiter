@@ -572,7 +572,7 @@ const OverviewPage = () => {
         {/* MIDDLE: Analytics + Job Distribution + Calendar */}
         <div className="lg:col-span-6 flex flex-col gap-6">
           {/* Top Row: Analytics + Job Distribution side by side */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-6">
             {/* Candidate Pipeline Chart */}
             <motion.div
               variants={item}
@@ -706,23 +706,23 @@ const OverviewPage = () => {
                   >
                     {" "}
                     <div
-                      className={`p-3 rounded-xl transition-all
+                      className={`p-3 max-sm:p-2 rounded-xl transition-all
           ${
             hasInterview
               ? "bg-brand-primary text-white shadow-soft"
               : "bg-brand-primary/10 text-brand-primary/60"
           }`}
                     >
-                      <p className="text-sm font-black">{d.day}</p>
+                      <p className="text-xs font-black">{d.day}</p>
                     </div>
                   </div>
                 );
               })}
             </div>
             {selectedDate && (
-              <div className="bg-brand-dark rounded-2xl p-5 flex items-center justify-between group cursor-pointer hover:bg-black transition-all">
-                <div className="space-y-0.5 flex gap-4">
-                  <div className="text-white px-4 items-center flex gap-2 py-2 rounded-xl  bg-brand-primary font-black text-xl">
+              <div className="bg-brand-dark rounded-2xl p-5 flex max-sm:flex-col max-sm:items-start max-sm:gap-4 items-center justify-between group cursor-pointer hover:bg-black transition-all">
+                <div className="space-y-0.5 flex max-sm:flex-col gap-4">
+                  <div className="text-white max-sm:w-fit px-4 items-center flex gap-2 py-2 rounded-xl  bg-brand-primary font-black text-xl">
                     <div className="text-3xl">{selectedDate.day}</div>
                     <div className="flex flex-col">
                       <span className="text-xs ">

@@ -82,6 +82,8 @@ const Step1Account = ({ onNext, data, updateData }) => {
     // Company Name Validation
     if (!data.companyName || data.companyName.trim().length < 3) {
       errors.companyName = "Company name must be at least 3 characters";
+    } else if (data.companyName.length > 50) {
+      errors.companyName = "Company name cannot exceed 50 characters";
     }
 
     // Contact Name Validation
