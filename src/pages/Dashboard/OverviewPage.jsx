@@ -765,7 +765,7 @@ const OverviewPage = () => {
                       .map((i, index) => (
                         <div
                           key={index}
-                          className="w-7 h-7 rounded-full border-2 border-brand-dark bg-brand-primary/60"
+                          className="w-7 h-7 rounded-full border-2 border-brand-dark bg-brand-primary/60 flex items-center justify-center text-[9px] font-bold text-white"
                         >
                           {i.intern.fullName.slice(0, 2)}
                         </div>

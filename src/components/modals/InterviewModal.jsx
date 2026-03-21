@@ -101,7 +101,9 @@ const InterviewModal = ({
       // Check if saved date/time is valid (not in the past)
       let isDateTimeValid = true;
       if (lastUsedDetails.date) {
-        const savedDateTime = new Date(`${lastUsedDetails.date}T${lastUsedDetails.time || "23:59"}`);
+        const savedDateTime = new Date(
+          `${lastUsedDetails.date}T${lastUsedDetails.time || "23:59"}`,
+        );
         if (savedDateTime < now) {
           isDateTimeValid = false;
         }
@@ -109,8 +111,10 @@ const InterviewModal = ({
 
       setFormData((prev) => ({
         ...prev,
-        date: isDateTimeValid && lastUsedDetails.date ? lastUsedDetails.date : "",
-        time: isDateTimeValid && lastUsedDetails.time ? lastUsedDetails.time : "",
+        date:
+          isDateTimeValid && lastUsedDetails.date ? lastUsedDetails.date : "",
+        time:
+          isDateTimeValid && lastUsedDetails.time ? lastUsedDetails.time : "",
         mode: lastUsedDetails.mode || "Online",
         platform: lastUsedDetails.platform || "",
         location: lastUsedDetails.location || "",
@@ -146,7 +150,9 @@ const InterviewModal = ({
     const selectedDate = new Date(`${formData.date}T${formData.time}`);
 
     if (selectedDate < now) {
-      setTimeError("Interview cannot be scheduled in the past. Please select a future date and time.");
+      setTimeError(
+        "Interview cannot be scheduled in the past. Please select a future date and time.",
+      );
       return;
     }
     setTimeError("");
@@ -215,13 +221,25 @@ const InterviewModal = ({
           platform: formData.mode === "Online" ? formData.platform : "",
           location: formData.mode === "Offline" ? formData.location : "",
         };
-        localStorage.setItem("lastInterviewDetails", JSON.stringify(detailsToSave));
+        localStorage.setItem(
+          "lastInterviewDetails",
+          JSON.stringify(detailsToSave),
+        );
         setLastUsedDetails(detailsToSave);
 
         setIsSubmitted(true);
         setTimeout(() => {
           handleClose();
         }, 2000);
+
+        setFormData({
+          date: "",
+          time: "",
+          mode: "Online", // Online or Offline
+          platform: "",
+          location: "",
+          notes: "",
+        });
       } else {
         toast.error(response.message || "Failed to schedule interview");
       }

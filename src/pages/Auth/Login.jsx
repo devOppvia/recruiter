@@ -61,7 +61,7 @@ const Login = () => {
           localStorage.setItem("companyId", response.data.userData.id);
         }
 
-        navigate("/dashboard/overview");
+        navigate("/dashboard/overview", { replace: true });
       } else {
         toast.error(response.message || "Authentication failed");
       }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Sparkles, AlertCircle, LifeBuoy } from "lucide-react";
@@ -7,13 +7,20 @@ import Button from "../Button";
 import Input from "../Input";
 import Select from "../Select";
 import Textarea from "../Textarea";
-import { createSupportApi, COMPANY_ID } from "../../helper/api";
+import {
+  createSupportApi,
+  COMPANY_ID,
+  getCompanyProfileDetailsApi,
+} from "../../helper/api";
 import toast from "react-hot-toast";
+import { updateProfile } from "../../store/slices/authSlice";
 
 const SupportModal = () => {
   const dispatch = useDispatch();
-  const { company: reduxCompany } = useSelector((state) => state.profile);
+  const [company, setCompany] = useState({});
   const { isModalOpen } = useSelector((state) => state.support);
+  const companyId = localStorage.getItem("companyId");
+
   const [attachment, setAttachment] = useState(null);
   const [formData, setFormData] = useState({
     subject: "",
@@ -31,7 +38,7 @@ const SupportModal = () => {
     "Other",
   ];
   const priorities = ["low", "medium", "high"];
-  console.log("comapny data : ", reduxCompany);
+  console.log("comapny data : ", company);
   const validateForm = () => {
     const newErrors = {};
 
@@ -48,7 +55,13 @@ const SupportModal = () => {
     }
 
     if (attachment) {
-      const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"];
+      const allowedTypes = [
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
       if (!allowedTypes.includes(attachment.type)) {
         newErrors.attachment = "Only PDF and image files are allowed";
       }
@@ -58,6 +71,17 @@ const SupportModal = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  useEffect(() => {
+    const getCompanyDetail = async () => {
+      const res = await getCompanyProfileDetailsApi(companyId);
+      console.log("response is. : ", res);
+      if (res?.status) {
+        setCompany(res.data);
+      }
+    };
+    getCompanyDetail();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -65,16 +89,11 @@ const SupportModal = () => {
 
     try {
       const formDataApi = new FormData();
-      const phone = reduxCompany.mobile;
 
-      const parts = phone.split(" ");
-      const countryCode = parts[0];
-      const phoneNumber = parts.slice(1).join("").replace(/\s/g, "");
-
-      formDataApi.append("fullName", reduxCompany?.name);
-      formDataApi.append("email", reduxCompany?.email);
-      formDataApi.append("phoneNumber", phoneNumber);
-      formDataApi.append("countryCode", countryCode);
+      formDataApi.append("fullName", company?.companyName);
+      formDataApi.append("email", company?.email);
+      formDataApi.append("phoneNumber", company?.phoneNumber);
+      formDataApi.append("countryCode", company?.countryCode);
       formDataApi.append("companyId", COMPANY_ID);
 
       formDataApi.append("ticketType", formData.category);
@@ -252,7 +271,12 @@ const SupportModal = () => {
             <Button
               onClick={handleSubmit}
               className="rounded-2xl px-8 py-4 h-auto shadow-soft bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center gap-2 group"
-              disabled={!formData.subject || !formData.message || formData.subject.length > 50 || formData.message.length > 500}
+              disabled={
+                !formData.subject ||
+                !formData.message ||
+                formData.subject.length > 50 ||
+                formData.message.length > 500
+              }
             >
               <span className="font-black uppercase tracking-widest text-[10px]">
                 Submit Request

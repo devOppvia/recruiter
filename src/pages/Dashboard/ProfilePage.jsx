@@ -259,7 +259,7 @@ const ProfilePage = () => {
 
       const response = await editProfileApi(dataToSend, companyId);
       if (response.status) {
-        toast.success("Profile updated successfully");
+        // toast.success("Profile updated successfully");
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
         fetchProfileData();

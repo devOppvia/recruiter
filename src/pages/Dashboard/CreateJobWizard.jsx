@@ -879,18 +879,35 @@ const CreateJobWizard = () => {
                 ) : (
                   <Select
                     label={"Internship Duration"}
-                    options={[
-                      "0 - 1 year",
-                      "1 - 2 year",
-                      "2 - 3 year",
-                      "3 - 4 year",
-                      "4 - 5 year",
-                      "5 - 6 year",
-                      "6 - 7 year",
-                      "7 - 8 year",
-                      "8 - 9 year",
-                      "9 - 10 year",
-                    ]}
+                    options={
+                      draft.jobType === "JOB"
+                        ? [
+                            "0 - 1 year",
+                            "1 - 2 year",
+                            "2 - 3 year",
+                            "3 - 4 year",
+                            "4 - 5 year",
+                            "5 - 6 year",
+                            "6 - 7 year",
+                            "7 - 8 year",
+                            "8 - 9 year",
+                            "9 - 10 year",
+                            "10+ year",
+                          ]
+                        : [
+                            "1 month",
+                            "2 month",
+                            "3 month",
+                            "4 month",
+                            "5 month",
+                            "6 month",
+                            "7 month",
+                            "8 month",
+                            "9 month",
+                            "10 month",
+                            "10+ month",
+                          ]
+                    }
                     value={draft.duration}
                     onChange={(val) => dispatch(updateDraft({ duration: val }))}
                   />
@@ -1379,17 +1396,18 @@ const CreateJobWizard = () => {
 
               {/* Wizard Footer */}
               <div className="px-10 py-10 bg-white/50 border-t border-brand-primary/5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    onClick={handelSaveDraft}
-                    className="text-brand-primary/40 font-black uppercase tracking-widest text-[10px] hover:text-brand-primary px-4"
-                  >
-                    <Save size={14} className="mr-2" /> Save Draft
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-4">
+                {currentStep > 2 && (
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="ghost"
+                      onClick={handelSaveDraft}
+                      className="text-brand-primary/40 font-black uppercase tracking-widest text-[10px] hover:text-brand-primary px-4"
+                    >
+                      <Save size={14} className="mr-2" /> Save Draft
+                    </Button>
+                  </div>
+                )}
+                <div className="flex items-center gap-4 ml-auto">
                   {currentStep > 1 && (
                     <button
                       onClick={() => dispatch(prevStep())}

@@ -456,7 +456,14 @@ const CandidatesPage = () => {
                                           >
                                             Hire (After{" "}
                                             {c.interview[0].interviewDate} @{" "}
-                                            {c.interview[0].interviewTime})
+                                            {new Date(
+                                              `1970-01-01T${c.interview[0].interviewTime}`,
+                                            ).toLocaleTimeString([], {
+                                              hour: "2-digit",
+                                              minute: "2-digit",
+                                              hour12: true,
+                                            })}
+                                            )
                                           </Button>
                                         ) : (
                                           <Button
@@ -465,11 +472,17 @@ const CandidatesPage = () => {
                                             onClick={() =>
                                               handleNextStepClick(
                                                 c,
-                                                statusTransitions[c.candidateStatus],
+                                                statusTransitions[
+                                                  c.candidateStatus
+                                                ],
                                               )
                                             }
                                           >
-                                            {statusTransitions[c.candidateStatus]}
+                                            {
+                                              statusTransitions[
+                                                c.candidateStatus
+                                              ]
+                                            }
                                           </Button>
                                         )
                                       ) : (
@@ -479,7 +492,9 @@ const CandidatesPage = () => {
                                           onClick={() =>
                                             handleNextStepClick(
                                               c,
-                                              statusTransitions[c.candidateStatus],
+                                              statusTransitions[
+                                                c.candidateStatus
+                                              ],
                                             )
                                           }
                                         >
@@ -558,7 +573,10 @@ const CandidatesPage = () => {
                                     <Briefcase size={14} strokeWidth={2.5} />
                                   </div>
                                   <span className="text-xs font-black text-brand-primary/70">
-                                    {c.intern.experience !== "" && c.intern.experience !== "0" ? c.intern.experience : "NA"}
+                                    {c.intern.experience !== "" &&
+                                    c.intern.experience !== "0"
+                                      ? c.intern.experience
+                                      : "NA"}
                                   </span>
                                 </div>
                               </div>
@@ -665,10 +683,7 @@ const CandidatesPage = () => {
                                 Resume
                               </Button>
                             </div>
-                            
                           </div>
-
-                          
                         </div>
                       </motion.div>
                     )}
