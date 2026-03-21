@@ -416,7 +416,7 @@ const SubscriptionPage = () => {
             className="space-y-10"
           >
             {/* Plan Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {plans.map((plan, index) => {
                 const planKey =
                   plan.packageName?.toLowerCase() ||

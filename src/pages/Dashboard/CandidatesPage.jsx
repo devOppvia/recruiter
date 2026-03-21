@@ -394,7 +394,7 @@ const CandidatesPage = () => {
                       if (willOpen) markCandidateOpened(c.id);
                     }}
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-[400px_1fr_180px_220px_60px] gap-6 items-center">
+                    <div className="grid grid-cols-1 md:grid-cols-[400px_1fr_180px_220px_60px] gap-6 max-sm:flex max-sm:flex-col items-center">
                       <div className="flex items-center gap-5">
                         <div className="w-14 h-14 rounded-2xl bg-brand-primary/5 flex items-center justify-center text-brand-primary text-xl font-black shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
                           <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent" />
@@ -665,7 +665,10 @@ const CandidatesPage = () => {
                                 Resume
                               </Button>
                             </div>
+                            
                           </div>
+
+                          
                         </div>
                       </motion.div>
                     )}

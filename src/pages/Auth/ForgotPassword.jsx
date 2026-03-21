@@ -1,73 +1,50 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Mail, ArrowRight, Sparkles, ArrowLeft, KeyRound } from "lucide-react";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { motion } from "framer-motion";
-import { copmanySignInApi } from "../../helper/api";
+import { sendForgotPasswordMailApi } from "../../helper/api";
 import toast from "react-hot-toast";
 
-const Login = () => {
+const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [errors, setErrors] = useState({});
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
 
   const validate = () => {
-    const newErrors = {};
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
+    if (!email) {
+      setError("Email is required");
+      return false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setError("Invalid email format");
+      return false;
     }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setError("");
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validate()) {
-      return;
-    }
+    if (!validate()) return;
 
     setIsLoading(true);
     try {
-      const response = await copmanySignInApi(formData);
+      const response = await sendForgotPasswordMailApi({ email });
 
       if (response.status) {
-        toast.success(response.message || "Welcome to Oppvia");
-
-        // Store authentication critical data
-        if (response.data.accessToken) {
-          localStorage.setItem("token", response.data.accessToken);
-          localStorage.setItem("accessToken", response.data.accessToken);
-        }
-
-        if (response.data.userData) {
-          localStorage.setItem(
-            "userData",
-            JSON.stringify(response.data.userData),
-          );
-          localStorage.setItem("companyId", response.data.userData.id);
-        }
-
-        navigate("/dashboard/overview");
+        toast.success(
+          response.message || "Password reset link sent to your email",
+        );
+        navigate("/login");
       } else {
-        toast.error(response.message || "Authentication failed");
+        toast.error(response.message || "Failed to send reset link");
       }
     } catch (error) {
-      console.error("Login Error:", error);
-      toast.error(error || "Invalid credentials. Please verify your access.");
+      console.error("Forgot Password Error:", error);
+      toast.error(error || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +80,7 @@ const Login = () => {
           >
             <Sparkles size={16} className="text-white/60" />
             <span className="text-[10px] font-black uppercase tracking-widest text-white/80">
-              Premium Talent Ecosystem
+              Secure Account Recovery
             </span>
           </motion.div>
 
@@ -113,9 +90,9 @@ const Login = () => {
             transition={{ delay: 0.3 }}
             className="text-7xl font-black text-white leading-[0.9] tracking-tighter text-editorial"
           >
-            Elevating <br />
-            <span className="text-white/40 italic">The Future</span> <br />
-            Of Recruitment
+            Regain <br />
+            <span className="text-white/40 italic">Your</span> <br />
+            Access
           </motion.h2>
 
           <motion.p
@@ -124,8 +101,8 @@ const Login = () => {
             transition={{ delay: 0.4 }}
             className="text-lg text-white/60 font-bold max-w-md leading-relaxed"
           >
-            Discover, manage, and scale your workforce with the world's most
-            sophisticated recruitment platform.
+            We'll send a secure password reset link to your registered email
+            address.
           </motion.p>
         </div>
 
@@ -169,12 +146,27 @@ const Login = () => {
         >
           <div className="space-y-4">
             <div className="w-14 h-1 px-4 bg-brand-primary/10 rounded-full mb-10 hidden lg:block" />
+
+            {/* Icon Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="w-14 h-14 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 flex items-center justify-center mb-6"
+            >
+              <KeyRound
+                size={24}
+                className="text-brand-primary/60"
+                strokeWidth={2.5}
+              />
+            </motion.div>
+
             <h1 className="text-5xl font-black text-brand-primary tracking-tighter font-editorial">
-              Welcome <span className="text-brand-primary/30">Back</span>
+              Forgot <span className="text-brand-primary/30">Password?</span>
             </h1>
             <p className="text-sm font-bold text-brand-primary/40 leading-relaxed max-w-sm">
-              Enter your credentials to access your administrative dashboard and
-              premium talent pool.
+              No worries. Enter your official email and we'll send you a secure
+              link to reset your access code.
             </p>
           </div>
 
@@ -185,50 +177,13 @@ const Login = () => {
                 placeholder="name@company.com"
                 type="email"
                 icon={Mail}
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, email: e.target.value }))
-                }
-                error={errors.email}
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError("");
+                }}
+                error={error}
               />
-            </div>
-
-            <div className="space-y-2 text-black">
-              <Input
-                label="Security Code"
-                placeholder="••••••••"
-                type={showPassword ? "text" : "password"}
-                icon={Lock}
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, password: e.target.value }))
-                }
-                error={errors.password}
-                rightAction={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="flex items-center justify-center"
-                  >
-                    {showPassword ? (
-                      <EyeOff size={18} strokeWidth={3} />
-                    ) : (
-                      <Eye size={18} strokeWidth={3} />
-                    )}
-                  </button>
-                }
-              />
-              <div className="flex justify-end pt-2">
-                <Link to="/forgot-password">
-                  {" "}
-                  <button
-                    type="button"
-                    className="text-[10px] font-black text-brand-primary/40 uppercase tracking-widest hover:text-brand-primary transition-colors"
-                  >
-                    Forgot Access Code?
-                  </button>
-                </Link>
-              </div>
             </div>
 
             <Button
@@ -238,7 +193,7 @@ const Login = () => {
               isLoading={isLoading}
             >
               <span className="flex items-center justify-center gap-3">
-                {isLoading ? "Verifying..." : "Authenticate Access"}
+                {isLoading ? "Sending Link..." : "Send Reset Link"}
                 {!isLoading && (
                   <ArrowRight
                     size={16}
@@ -253,16 +208,16 @@ const Login = () => {
           <div className="pt-8 border-t border-brand-primary/5 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex flex-col">
               <p className="text-[10px] font-black text-brand-primary/20 uppercase tracking-widest mb-1">
-                New to Oppvia?
+                Remember your password?
               </p>
               <button
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/login")}
                 className="text-sm font-black text-brand-primary flex items-center gap-2 group outline-none"
               >
-                Create Recruiter Profile
                 <div className="w-5 h-5 rounded-full bg-brand-primary/5 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all shadow-soft group-focus:ring-2 group-focus:ring-brand-primary/20">
-                  <ArrowRight size={10} strokeWidth={4} />
+                  <ArrowLeft size={10} strokeWidth={4} />
                 </div>
+                Back to Login
               </button>
             </div>
             <div className="text-left sm:text-right">
@@ -284,4 +239,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

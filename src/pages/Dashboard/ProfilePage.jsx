@@ -320,7 +320,7 @@ const ProfilePage = () => {
 
     try {
       const res = await updateComapanyMobileWithOTP(companyId, {
-        mobileNumber: reduxCompany.mobile,
+        mobileNumber: reduxCompany.phoneNumber,
       });
 
       if (res.status) {

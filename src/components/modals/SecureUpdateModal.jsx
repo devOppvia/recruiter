@@ -211,7 +211,7 @@ const SecureUpdateModal = () => {
                 </h2>
                 <p className="text-[10px] font-black text-brand-primary/30 uppercase tracking-widest">
                   Step {otpStep} of 3{" "}
-                </p>
+                </p>  
               </div>
             </div>
             <button
@@ -238,7 +238,7 @@ const SecureUpdateModal = () => {
                       Verify Current {isEmail ? "Email" : "Mobile"}
                     </h3>
                     <p className="text-sm font-bold text-brand-primary/40 leading-relaxed">
-                      We've sent a 6-digit verification code to{" "}
+                      We've sent a 4-digit verification code to{" "}
                       <span className="text-brand-primary">
                         {isEmail ? company.email : company.mobile}
                       </span>

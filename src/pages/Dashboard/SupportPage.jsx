@@ -42,15 +42,25 @@ const SupportPage = () => {
   const { tickets, activeTicketId } = useSelector((state) => state.support);
   const [searchQuery, setSearchQuery] = useState("");
   const [replyText, setReplyText] = useState("");
-  const chatEndRef = useRef(null);
   const [ticketsData, setTicketsData] = useState([]);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const messagesContainerRef = useRef(null);
   const socketRef = useRef(null);
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const fileInputRef = useRef(null);
+  const scrollToBottom = () => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight;
+      });
+    });
+  };
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -66,13 +76,6 @@ const SupportPage = () => {
   };
 
   const activeTicket = ticketsData.find((t) => t.id === activeTicketId);
-
-  console.log("active tickit : ", activeTicket);
-  useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [activeTicket?.messages]);
 
   const handleSendReply = async (e) => {
     e.preventDefault();
@@ -173,7 +176,12 @@ const SupportPage = () => {
 
     socketRef.current.on("new_message", (data) => {
       if (data.supportId === activeTicketId) {
-        setMessages((prev) => [...prev, data]);
+        setMessages((prev) => {
+          if (prev.find((m) => m.id === data.id)) return prev;
+          return [...prev, data];
+        });
+
+        // scrollToBottom(); // ✅ no timeout needed
       }
     });
 
@@ -181,6 +189,17 @@ const SupportPage = () => {
       socketRef.current.off("new_message");
     };
   }, [activeTicketId]);
+
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+
+    const timeout = setTimeout(() => {
+      el.scrollTop = el.scrollHeight;
+    }, 150); // ⬅️ important delay (for framer motion)
+
+    return () => clearTimeout(timeout);
+  }, [messages, activeTicketId]);
 
   const ticketAttachmentUrl =
     IMG_URL +
@@ -237,7 +256,7 @@ const SupportPage = () => {
       <div className="flex-1 flex gap-8 min-h-0">
         {/* Left: Ticket List */}
         <div
-          className={`w-full md:w-[400px] flex flex-col gap-6 shrink-0 ${activeTicketId ? "hidden md:flex" : "flex"}`}
+          className={`w-full md:w-[25vw] flex flex-col gap-6 shrink-0 ${activeTicketId ? "hidden md:flex" : "flex"}`}
         >
           <div className="relative group shrink-0">
             <Search
@@ -364,7 +383,10 @@ const SupportPage = () => {
                 </div>
 
                 {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar bg-brand-primary/[0.01]">
+                <div
+                  ref={messagesContainerRef}
+                  className="flex-1 min-h-0 overflow-y-auto p-10 space-y-8 no-scrollbar bg-brand-primary/[0.01]"
+                >
                   {activeTicket?.attachment && ticketAttachmentUrl && (
                     <div className="relative group h-40 min-w-60 w-fit p-4 border rounded-xl mx-auto overflow-hidden">
                       <img
@@ -455,7 +477,6 @@ const SupportPage = () => {
                       </div>
                     </div>
                   ))}
-                  <div ref={chatEndRef} />
                 </div>
 
                 {/* Reply Area */}
