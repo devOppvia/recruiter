@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   AlertCircle,
   RefreshCw,
+  Loader2,
 } from "lucide-react";
 import {
   toggleOtpModal,
@@ -39,10 +40,16 @@ const SecureUpdateModal = () => {
   );
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [inputValue, setInputValue] = useState("");
-  const [timer, setTimer] = useState(30);
+  const [inputError, setInputError] = useState("");
+  const [timer, setTimer] = useState(120);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const otpCode = otp.join("");
 
   const isEmail = otpType === "email";
+
+  const formatTimer = (s) =>
+    `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   useEffect(() => {
     let interval;
@@ -51,6 +58,23 @@ const SecureUpdateModal = () => {
     }
     return () => clearInterval(interval);
   }, [isOtpModalOpen, timer]);
+
+  // Reset timer whenever the OTP step changes
+  useEffect(() => {
+    setTimer(120);
+  }, [otpStep]);
+
+  // Reset all fields when modal closes
+  useEffect(() => {
+    if (!isOtpModalOpen) {
+      setOtp(["", "", "", ""]);
+      setInputValue("");
+      setInputError("");
+      setTimer(120);
+      setIsSubmitting(false);
+      setIsResending(false);
+    }
+  }, [isOtpModalOpen]);
 
   const handleOtpChange = (idx, val) => {
     if (val.length > 1) return;
@@ -77,11 +101,29 @@ const SecureUpdateModal = () => {
 
   const resetOtp = () => {
     setOtp(["", "", "", ""]);
-    setTimer(30);
+    setTimer(120);
+  };
+
+  const validateInput = () => {
+    if (isEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(inputValue)) {
+        setInputError("Please enter a valid email address");
+        return false;
+      }
+    } else {
+      if (!/^\d{10}$/.test(inputValue)) {
+        setInputError("Please enter a valid 10-digit mobile number");
+        return false;
+      }
+    }
+    setInputError("");
+    return true;
   };
   const handleNext = async () => {
     const companyId = localStorage.getItem("companyId");
     const otpCode = otp.join("");
+    setIsSubmitting(true);
 
     try {
       // STEP 1 → Verify OLD contact OTP
@@ -105,6 +147,10 @@ const SecureUpdateModal = () => {
 
       // STEP 2 → Send OTP to NEW contact
       else if (otpStep === 2) {
+        if (!validateInput()) {
+          setIsSubmitting(false);
+          return;
+        }
         if (isEmail) {
           await sendCompanyNewEmailOtp(companyId, {
             newEmail: inputValue,
@@ -118,6 +164,8 @@ const SecureUpdateModal = () => {
         dispatch(setTempInfo(inputValue));
         dispatch(nextOtpStep());
         resetOtp();
+        setInputValue("");
+        setInputError("");
         toast.success(`OTP sent to new ${isEmail ? "email" : "mobile"}`);
       }
 
@@ -140,11 +188,14 @@ const SecureUpdateModal = () => {
       }
     } catch (error) {
       toast.error(error || "Something went wrong");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleResend = async () => {
     const companyId = localStorage.getItem("companyId");
+    setIsResending(true);
 
     try {
       if (otpStep === 1) {
@@ -166,7 +217,7 @@ const SecureUpdateModal = () => {
           });
         } else {
           await sendCompanyNewMobileOtp(companyId, {
-            mobileNumber: tempInfo,
+            newMobileNumber: tempInfo,
           });
         }
       }
@@ -175,6 +226,8 @@ const SecureUpdateModal = () => {
       toast.success("OTP resent successfully");
     } catch (error) {
       toast.error(error?.message || "Failed to resend OTP");
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -211,7 +264,7 @@ const SecureUpdateModal = () => {
                 </h2>
                 <p className="text-[10px] font-black text-brand-primary/30 uppercase tracking-widest">
                   Step {otpStep} of 3{" "}
-                </p>  
+                </p>
               </div>
             </div>
             <button
@@ -265,31 +318,43 @@ const SecureUpdateModal = () => {
                   <div className="flex items-center justify-between">
                     {timer > 0 ? (
                       <p className="text-[11px] font-bold text-brand-primary/30 italic">
-                        Resend available in {timer}s
+                        Resend OTP in{" "}
+                        {formatTimer(timer)}
                       </p>
                     ) : (
                       <button
                         onClick={handleResend}
-                        className="text-[11px] font-black text-brand-primary uppercase tracking-widest hover:text-brand-primary-light transition-colors flex items-center gap-2"
+                        disabled={isResending}
+                        className="text-[11px] font-black text-brand-primary uppercase tracking-widest hover:text-brand-primary-light transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <RefreshCw size={12} strokeWidth={3} /> Resend Code
+                        {isResending ? (
+                          <Loader2 size={12} strokeWidth={3} className="animate-spin" />
+                        ) : (
+                          <RefreshCw size={12} strokeWidth={3} />
+                        )}
+                        {isResending ? "Resending..." : `Resend OTP`}
                       </button>
                     )}
                   </div>
 
                   <Button
                     onClick={handleNext}
-                    disabled={otp.some((d) => !d)}
+                    disabled={otp.some((d) => !d) || isSubmitting}
                     className="w-full rounded-2xl py-5 h-auto shadow-premium bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center justify-center gap-3 group"
                   >
+                    {isSubmitting ? (
+                      <Loader2 size={16} strokeWidth={3} className="animate-spin" />
+                    ) : null}
                     <span className="font-black uppercase tracking-widest text-xs">
-                      Verify & Proceed
+                      {isSubmitting ? "Verifying..." : "Verify & Proceed"}
                     </span>
-                    <ArrowRight
-                      size={16}
-                      strokeWidth={3}
-                      className="group-hover:translate-x-1 transition-transform"
-                    />
+                    {!isSubmitting && (
+                      <ArrowRight
+                        size={16}
+                        strokeWidth={3}
+                        className="group-hover:translate-x-1 transition-transform"
+                      />
+                    )}
                   </Button>
                 </motion.div>
               )}
@@ -312,19 +377,36 @@ const SecureUpdateModal = () => {
                     </p>
                   </div>
 
-                  <div className="relative group">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-primary/20 group-focus-within:text-brand-primary transition-colors">
-                      {isEmail ? <Mail size={20} /> : <Smartphone size={20} />}
+                  <div className="space-y-2">
+                    <div className="relative group">
+                      <div className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-primary/20 group-focus-within:text-brand-primary transition-colors">
+                        {isEmail ? <Mail size={20} /> : <Smartphone size={20} />}
+                      </div>
+                      <input
+                        type={isEmail ? "email" : "tel"}
+                        inputMode={isEmail ? "email" : "numeric"}
+                        placeholder={isEmail ? "new@company.io" : "10-digit mobile number"}
+                        value={inputValue}
+                        onChange={(e) => {
+                          const val = isEmail
+                            ? e.target.value
+                            : e.target.value.replace(/\D/g, "").slice(0, 10);
+                          setInputValue(val);
+                          setInputError("");
+                        }}
+                        className={`w-full pl-14 pr-6 py-5 bg-brand-primary/2 rounded-2xl border font-bold text-brand-primary shadow-soft focus:ring-4 outline-none transition-all ${
+                          inputError
+                            ? "border-red-400 focus:ring-red-400/10"
+                            : "border-transparent focus:ring-brand-primary/5"
+                        }`}
+                      />
                     </div>
-                    <input
-                      type={isEmail ? "email" : "text"}
-                      placeholder={
-                        isEmail ? "new@techflow.io" : "+91 XXXXX XXXXX"
-                      }
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      className="w-full pl-14 pr-6 py-5 bg-brand-primary/2 rounded-2xl border-none font-bold text-brand-primary shadow-soft focus:ring-4 focus:ring-brand-primary/5 outline-none transition-all"
-                    />
+                    {inputError && (
+                      <p className="text-[11px] font-bold text-red-500 flex items-center gap-1.5 px-1">
+                        <AlertCircle size={11} strokeWidth={3} />
+                        {inputError}
+                      </p>
+                    )}
                   </div>
 
                   <div className="p-5 bg-brand-primary/5 rounded-3xl flex items-start gap-4">
@@ -341,17 +423,22 @@ const SecureUpdateModal = () => {
 
                   <Button
                     onClick={handleNext}
-                    disabled={!inputValue}
+                    disabled={!inputValue || isSubmitting}
                     className="w-full rounded-2xl py-5 h-auto shadow-premium bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center justify-center gap-3 group"
                   >
+                    {isSubmitting ? (
+                      <Loader2 size={16} strokeWidth={3} className="animate-spin" />
+                    ) : null}
                     <span className="font-black uppercase tracking-widest text-xs">
-                      Send Verification
+                      {isSubmitting ? "Sending..." : "Send Verification"}
                     </span>
-                    <ArrowRight
-                      size={16}
-                      strokeWidth={3}
-                      className="group-hover:translate-x-1 transition-transform"
-                    />
+                    {!isSubmitting && (
+                      <ArrowRight
+                        size={16}
+                        strokeWidth={3}
+                        className="group-hover:translate-x-1 transition-transform"
+                      />
+                    )}
                   </Button>
                 </motion.div>
               )}
@@ -369,7 +456,7 @@ const SecureUpdateModal = () => {
                       Verify New {isEmail ? "Email" : "Mobile"}
                     </h3>
                     <p className="text-sm font-bold text-brand-primary/40 leading-relaxed">
-                      Almost there! Enter the 6-digit code sent to{" "}
+                      Almost there! Enter the 4-digit code sent to{" "}
                       <span className="text-brand-primary">{tempInfo}</span>.
                     </p>
                   </div>
@@ -384,24 +471,52 @@ const SecureUpdateModal = () => {
                         maxLength="1"
                         value={digit}
                         onChange={(e) => handleOtpChange(idx, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(idx, e)}
                         className="w-12 h-14 bg-brand-primary/5 rounded-2xl border text-center font-black text-xl text-brand-primary shadow-soft focus:ring-4 focus:ring-brand-primary/5 outline-none transition-all"
                       />
                     ))}
                   </div>
 
+                  <div className="flex items-center justify-between">
+                    {timer > 0 ? (
+                      <p className="text-[11px] font-bold text-brand-primary/30 italic">
+                        Resend OTP in{" "}
+                        {formatTimer(timer)}
+                      </p>
+                    ) : (
+                      <button
+                        onClick={handleResend}
+                        disabled={isResending}
+                        className="text-[11px] font-black text-brand-primary uppercase tracking-widest hover:text-brand-primary-light transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isResending ? (
+                          <Loader2 size={12} strokeWidth={3} className="animate-spin" />
+                        ) : (
+                          <RefreshCw size={12} strokeWidth={3} />
+                        )}
+                        {isResending ? "Resending..." : `Resend OTP`}
+                      </button>
+                    )}
+                  </div>
+
                   <Button
                     onClick={handleNext}
-                    disabled={otp.some((d) => !d)}
+                    disabled={otp.some((d) => !d) || isSubmitting}
                     className="w-full rounded-2xl py-5 h-auto shadow-premium bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center justify-center gap-3 group"
                   >
+                    {isSubmitting ? (
+                      <Loader2 size={16} strokeWidth={3} className="animate-spin" />
+                    ) : null}
                     <span className="font-black uppercase tracking-widest text-xs">
-                      Confirm Update
+                      {isSubmitting ? "Updating..." : "Confirm Update"}
                     </span>
-                    <ArrowRight
-                      size={16}
-                      strokeWidth={3}
-                      className="group-hover:translate-x-1 transition-transform"
-                    />
+                    {!isSubmitting && (
+                      <ArrowRight
+                        size={16}
+                        strokeWidth={3}
+                        className="group-hover:translate-x-1 transition-transform"
+                      />
+                    )}
                   </Button>
                 </motion.div>
               )}

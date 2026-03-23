@@ -22,6 +22,7 @@ import {
   Hash,
   Trash2,
   Search,
+  Loader2,
 } from "lucide-react";
 import { updateProfile, toggleOtpModal } from "../../store/slices/profileSlice";
 import Button from "../../components/Button";
@@ -47,6 +48,8 @@ const ProfilePage = () => {
   const [industries, setIndustries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isEmailUpdating, setIsEmailUpdating] = useState(false);
+  const [isMobileUpdating, setIsMobileUpdating] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   // Refs for Google Places Autocomplete
@@ -300,7 +303,7 @@ const ProfilePage = () => {
 
   const handleEmailUpdate = async () => {
     const companyId = localStorage.getItem("companyId");
-
+    setIsEmailUpdating(true);
     try {
       const res = await updateCompanyEmailWithOTP(companyId, {
         email: reduxCompany.email,
@@ -312,12 +315,14 @@ const ProfilePage = () => {
       }
     } catch (error) {
       toast.error(error);
+    } finally {
+      setIsEmailUpdating(false);
     }
   };
 
   const handleMobileUpdate = async () => {
     const companyId = localStorage.getItem("companyId");
-
+    setIsMobileUpdating(true);
     try {
       const res = await updateComapanyMobileWithOTP(companyId, {
         mobileNumber: reduxCompany.phoneNumber,
@@ -329,6 +334,8 @@ const ProfilePage = () => {
       }
     } catch (error) {
       toast.error(error);
+    } finally {
+      setIsMobileUpdating(false);
     }
   };
 
@@ -864,10 +871,14 @@ const ProfilePage = () => {
                       <Button
                         variant="outline"
                         onClick={() => handleEmailUpdate()}
-                        className="rounded-xl px-5 py-3 border-brand-primary-light/20 text-brand-primary hover:bg-brand-primary/5"
+                        disabled={isEmailUpdating}
+                        className="rounded-xl px-5 py-3 border-brand-primary-light/20 text-brand-primary hover:bg-brand-primary/5 flex items-center gap-2"
                       >
+                        {isEmailUpdating ? (
+                          <Loader2 size={12} strokeWidth={3} className="animate-spin" />
+                        ) : null}
                         <span className="font-black uppercase tracking-widest text-[10px]">
-                          Change Email
+                          {isEmailUpdating ? "Sending OTP..." : "Change Email"}
                         </span>
                       </Button>
                     </div>
@@ -896,10 +907,14 @@ const ProfilePage = () => {
                       <Button
                         variant="outline"
                         onClick={() => handleMobileUpdate()}
-                        className="rounded-xl px-5 py-3 border-brand-primary-light/20 text-brand-primary hover:bg-brand-primary/5"
+                        disabled={isMobileUpdating}
+                        className="rounded-xl px-5 py-3 border-brand-primary-light/20 text-brand-primary hover:bg-brand-primary/5 flex items-center gap-2"
                       >
+                        {isMobileUpdating ? (
+                          <Loader2 size={12} strokeWidth={3} className="animate-spin" />
+                        ) : null}
                         <span className="font-black uppercase tracking-widest text-[10px]">
-                          Change Number
+                          {isMobileUpdating ? "Sending OTP..." : "Change Number"}
                         </span>
                       </Button>
                     </div>
