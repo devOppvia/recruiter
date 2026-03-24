@@ -37,7 +37,7 @@ const ComingSoonResumeBank = () => {
                             Coming Soon
                         </div>
                         <h2 className="text-3xl md:text-4xl font-black tracking-tight max-w-2xl">
-                            Resume Bank is under final QA and will go live soon.
+                            Resume Bank is under development and will go live soon.
                         </h2>
                         <p className="text-sm md:text-base font-semibold text-white/80 max-w-2xl leading-relaxed">
                             We are polishing search performance, profile quality controls, and recruiter workflows to ensure an industry-standard experience from day one.
@@ -55,11 +55,11 @@ const ComingSoonResumeBank = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white/10 border border-white/20 rounded-3xl p-5 space-y-4 backdrop-blur-sm">
+                    {/* <div className="bg-white/10 border border-white/20 rounded-3xl p-5 space-y-4 backdrop-blur-sm">
                         <p className="text-[10px] font-black uppercase tracking-widest text-white/70">Launch Window</p>
                         <p className="text-2xl font-black tracking-tight">Phase 1 Rollout</p>
                         <p className="text-sm font-semibold text-white/80">Access opens gradually for all companies once validation is complete.</p>
-                    </div>
+                    </div> */}
                 </div>
             </motion.section>
 

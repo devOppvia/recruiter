@@ -492,7 +492,6 @@ const SubscriptionPage = () => {
                       </div>
 
                       <div>
-                        {console.log("pan data : ", plan)}
                         {Object.entries(featureLabels)?.map(([key, label]) => (
                           <div
                             key={key}

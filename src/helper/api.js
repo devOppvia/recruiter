@@ -75,7 +75,7 @@ export const getCompanyDetailsApi = async (companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error.response.data || "Check Network Connection";
+    return error?.response?.data || "Check Network Connection";
   }
 };
 
@@ -85,7 +85,7 @@ export const getJobData = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -95,7 +95,7 @@ export const createJobOpeningApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -105,7 +105,7 @@ export const getJobCategoriesApi = async () => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -118,7 +118,7 @@ export const getJobSubCategoriesApi = async (payloadData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -128,7 +128,7 @@ export const getSkillsApi = async (payloadData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -138,7 +138,7 @@ export const getViewJobcardApi = async (jobId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -148,7 +148,7 @@ export const deleteJobPostApi = async (jobId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -161,7 +161,7 @@ export const updateJobStatusApi = async (jobId, jobStatus) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -171,7 +171,7 @@ export const editJobApi = async (jobId, jobData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -181,7 +181,7 @@ export const getCandidatesDataApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -191,7 +191,7 @@ export const resumeDownloadApi = async (candidateId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -207,7 +207,7 @@ export const updateCandidateStatusApi = async (
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -219,7 +219,7 @@ export const deleteCandidatePostApi = async (candidateId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -231,7 +231,7 @@ export const getViewProfileInfoApi = async (candidateId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -243,7 +243,7 @@ export const getResumeBankApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -256,7 +256,7 @@ export const resumeBankDownload = async (candidateId, companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -269,7 +269,7 @@ export const getDownloadedResumesApi = async (companyId, userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -279,7 +279,7 @@ export const deleteDownloadedResumesApi = async (resumeId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -292,7 +292,7 @@ export const updateDownloadedResumeApi = async (resumeId, resumeStatus) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -302,7 +302,7 @@ export const downloadResumeFreeApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -312,7 +312,7 @@ export const createSupportApi = async (supportData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -322,7 +322,7 @@ export const getjobLocationsApi = async (companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -335,7 +335,7 @@ export const getFilterJobCategoriesApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -348,7 +348,7 @@ export const getFilterJobSubCategoriesApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -363,7 +363,7 @@ export const getDashboardInfoApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -376,7 +376,7 @@ export const getDashboardJobStatusApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -389,7 +389,7 @@ export const getDashboardCandidatChartApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -402,7 +402,7 @@ export const getDashboardJobCountByStatusApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -415,7 +415,7 @@ export const getDashboardCandidatDetailsApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 export const getDashboardInterviewsApi = async (userData) => {
@@ -427,7 +427,7 @@ export const getDashboardInterviewsApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -440,7 +440,7 @@ export const getDashboardCreditsAndStatsApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -453,7 +453,7 @@ export const getCandidateCardApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -465,7 +465,7 @@ export const getAiGeneratedAboutApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -475,7 +475,7 @@ export const getAiGeneratedOtherDetailsApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -490,7 +490,7 @@ export const getAllSupportApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -502,7 +502,7 @@ export const getAllSupportMessagesApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -514,7 +514,7 @@ export const addSupportMessageApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -526,7 +526,7 @@ export const getLocationApi = async () => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -538,7 +538,7 @@ export const getInternIndustriesApi = async () => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -550,7 +550,7 @@ export const getInternDepartmentsApi = async (industryId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -562,7 +562,7 @@ export const getCompanyProfileDetailsApi = async (companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -577,7 +577,7 @@ export const editProfileApi = async (userData, companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -589,17 +589,17 @@ export const getIndustriesListApi = async () => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
-export const copmanySignInApi = async (userData) => {
+export const companySignInApi = async (userData) => {
   try {
     const response = await api.post(`company-auth/login`, userData);
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -612,7 +612,7 @@ export const companyCreateAccountApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -625,7 +625,7 @@ export const companyCreateAccountStep2Api = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -638,7 +638,7 @@ export const companyCreateAccountStep3Api = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -651,7 +651,7 @@ export const companyCreateAccountStep4Api = async (userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -661,7 +661,7 @@ export const sendForgotPasswordMailApi = async (body) => {
     return response.data;
   } catch (error) {
     console.log("Error ::", error);
-    return error.response.data || "Check Network Connection";
+    return error?.response?.data || "Check Network Connection";
   }
 };
 export const resetPasswordApi = async (body) => {
@@ -670,7 +670,7 @@ export const resetPasswordApi = async (body) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error.response.data || "Check Network Connection";
+    return error?.response?.data || "Check Network Connection";
   }
 };
 
@@ -683,7 +683,7 @@ export const subscriptionApi = async (body) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error.response.data || "Check Network Connection";
+    return error?.response?.data || "Check Network Connection";
   }
 };
 
@@ -693,7 +693,7 @@ export const subscriptionVerifyPaymentApi = async (body) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    return error.response.data || "Check Network Connection";
+    return error?.response?.data || "Check Network Connection";
   }
 };
 
@@ -704,7 +704,7 @@ export const getNotificationsApi = async (companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -714,7 +714,7 @@ export const getCurrentCompanyStatus = async (companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -728,7 +728,7 @@ export const getSubscriptionPackagesApi = async (companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -742,7 +742,7 @@ export const getPurchasedSubscriptionsApi = async (companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -756,7 +756,7 @@ export const getPurchasedPlanApi = async (companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -768,7 +768,7 @@ export const getPaymentHistoryApi = async (companyId) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -783,7 +783,7 @@ export const verifyCompanyMobileNumOtpApi = async (companyId, payloadData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -798,7 +798,7 @@ export const resendCompanyMobileNumOtpApi = async (companyId, payloadData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -813,7 +813,7 @@ export const verifyCompanyEmailOtpApi = async (companyId, payloadData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -828,7 +828,7 @@ export const resendCompanyEmailOtpApi = async (companyId, payloadData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -845,7 +845,7 @@ export const updateCompanyEmailWithOTP = async (companyId, userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -860,7 +860,7 @@ export const verifyCompanyEmailWithOTP = async (companyId, userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -875,7 +875,7 @@ export const sendCompanyNewEmailOtp = async (companyId, userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -890,7 +890,7 @@ export const verifyAndUpdateNewMailWithOtpApi = async (companyId, userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -907,7 +907,7 @@ export const updateComapanyMobileWithOTP = async (companyId, userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -922,7 +922,7 @@ export const verifyCompanyMobileWithOTP = async (companyId, userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -937,7 +937,7 @@ export const sendCompanyNewMobileOtp = async (companyId, userData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -955,7 +955,7 @@ export const verifyAndUpdateNewMobileWithOtpApi = async (
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -967,7 +967,7 @@ export const scheduleInterviewApi = async (payloadData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 
@@ -977,7 +977,7 @@ export const generateJobPositionTitleApi = async (payloadData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.message || "Check Network Connection";
+    throw error?.response?.data?.message || "Check Network Connection";
   }
 };
 

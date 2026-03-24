@@ -180,7 +180,6 @@ const CreateJobWizard = () => {
   React.useEffect(() => {
     if (isWizardOpen) {
       fetchCategories();
-      console.log("company id is : ", companyId);
       if (companyId) {
         fetchJobLocations(companyId);
       }
@@ -283,7 +282,6 @@ const CreateJobWizard = () => {
 
     const interval = setInterval(() => {
       localStorage.setItem("oppvia_job_draft", JSON.stringify(draft));
-      console.log("Draft autosaved at", new Date().toLocaleTimeString());
     }, 30000);
 
     return () => clearInterval(interval);
@@ -297,7 +295,6 @@ const CreateJobWizard = () => {
         try {
           const parsedDraft = JSON.parse(savedDraft);
           dispatch(updateDraft(parsedDraft));
-          console.log("Draft loaded from localStorage:", parsedDraft);
         } catch {
           console.error("Failed to parse saved draft");
         }
@@ -580,7 +577,6 @@ const CreateJobWizard = () => {
     try {
       setIsGeneratingAbout(true);
       const response = await getAiGeneratedAboutApi(draft);
-      console.log(response);
       if (response.status) {
         dispatch(updateDraft({ description: response.data }));
       } else {
@@ -598,7 +594,6 @@ const CreateJobWizard = () => {
     try {
       setIsGeneratingOther(true);
       const response = await getAiGeneratedOtherDetailsApi(draft);
-      console.log(response);
       if (response.status) {
         dispatch(updateDraft({ otherInfo: response.data }));
       } else {
@@ -842,7 +837,6 @@ const CreateJobWizard = () => {
                     : "overflow-hidden"
                 }
               >
-                {console.log("location state data : ", jobLocations)}
                 {jobLocations.length > 0 ? (
                   <Select
                     label="Job Location"
@@ -924,7 +918,6 @@ const CreateJobWizard = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {console.log("job type is : ==> ", draft)}
 
                 <div className="space-y-4 col-span-2">
                   <label className="text-[10px] font-black text-brand-primary/40 uppercase tracking-widest px-1">

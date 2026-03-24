@@ -42,7 +42,6 @@ const usePagination = ({
 
   // Handle page change
   const goToPage = (page) => {
-    console.log('goToPage called with:', page, 'totalPages:', paginationData.totalPages);
     const pageNumber = Number(page);
     if (pageNumber >= 1 && pageNumber <= paginationData.totalPages) {
       setCurrentPage(pageNumber);

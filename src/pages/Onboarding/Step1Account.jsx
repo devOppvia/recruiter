@@ -1,4 +1,4 @@
-import { useState } from "react";
+  import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
@@ -59,7 +59,6 @@ const Step1Account = ({ onNext, data, updateData }) => {
       };
 
       const response = await companyCreateAccountApi(payload);
-      console.log("response : ", response);
       if (response.status) {
         localStorage.setItem("companyId", response?.data?.id);
         localStorage.setItem("formData", JSON.stringify(data));
@@ -69,7 +68,6 @@ const Step1Account = ({ onNext, data, updateData }) => {
         onNext();
       }
     } catch (error) {
-      console.log("error : ", error);
       toast.error(error || "Failed to initialize account");
     } finally {
       setIsLoading(false);

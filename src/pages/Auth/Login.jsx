@@ -4,8 +4,8 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from "lucide-react";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { motion } from "framer-motion";
-import { copmanySignInApi } from "../../helper/api";
 import toast from "react-hot-toast";
+import { companySignInApi } from "../../helper/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      const response = await copmanySignInApi(formData);
+      const response = await companySignInApi(formData);
 
       if (response.status) {
         toast.success(response.message || "Welcome to Oppvia");
@@ -66,7 +66,6 @@ const Login = () => {
         toast.error(response.message || "Authentication failed");
       }
     } catch (error) {
-      console.error("Login Error:", error);
       toast.error(error || "Invalid credentials. Please verify your access.");
     } finally {
       setIsLoading(false);

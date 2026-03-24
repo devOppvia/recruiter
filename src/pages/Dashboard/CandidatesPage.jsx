@@ -155,6 +155,7 @@ const CandidatesPage = () => {
       const updatePromises = ids.map((id) =>
         updateCandidateStatusApi(id, { status }),
       );
+      setIsLoading(true);
       const results = await Promise.all(updatePromises);
 
       if (results.every((res) => res.status)) {
@@ -167,19 +168,16 @@ const CandidatesPage = () => {
         );
         setSelectedIds([]);
         fetchCandidates();
+        setIsLoading(false);
       } else {
         toast.error("Failed to update some candidates");
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Status Update Error:", error);
+      setIsLoading(false);
       toast.error(error?.message || "Failed to update status");
     }
-  };
-
-  const toggleSelection = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
   };
 
   const handleBulkAction = (status) => {
