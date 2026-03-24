@@ -422,11 +422,19 @@ const OverviewPage = () => {
             <MetricBar
               label="Job Quota"
               value={`${data?.creditsAndStats?.totalJobsPosted}/${data?.creditsAndStats?.remainingJobCredits}`}
-              percentage={Math.round(
-                (data?.creditsAndStats?.totalJobsPosted /
-                  data?.creditsAndStats?.remainingJobCredits) *
-                  100,
-              )}
+              percentage={
+                Math.round(
+                  (data?.creditsAndStats?.totalJobsPosted /
+                    data?.creditsAndStats?.remainingJobCredits) *
+                    100,
+                ) > 100
+                  ? 100
+                  : Math.round(
+                      (data?.creditsAndStats?.totalJobsPosted /
+                        data?.creditsAndStats?.remainingJobCredits) *
+                        100,
+                    )
+              }
               icon={Briefcase}
               color="bg-brand-primary/60"
               delay={0.5}
@@ -434,11 +442,19 @@ const OverviewPage = () => {
             <MetricBar
               label="Resume Quota"
               value={`${data?.creditsAndStats?.totalDownloadedResumes}/${data?.creditsAndStats?.remainingResumeCredits}`}
-              percentage={Math.round(
-                (data?.creditsAndStats?.totalDownloadedResumes /
-                  data?.creditsAndStats?.remainingResumeCredits) *
-                  100,
-              )}
+              percentage={
+                Math.round(
+                  (data?.creditsAndStats?.totalDownloadedResumes /
+                    data?.creditsAndStats?.remainingResumeCredits) *
+                    100,
+                ) > 100
+                  ? 100
+                  : Math.round(
+                      (data?.creditsAndStats?.totalDownloadedResumes /
+                        data?.creditsAndStats?.remainingResumeCredits) *
+                        100,
+                    )
+              }
               icon={Search}
               color="bg-brand-accent/60"
               delay={0.6}
