@@ -381,7 +381,7 @@ const OverviewPage = () => {
               <span className="font-bold text-brand-primary/40">
                 {getGreeting()},{" "}
               </span>
-              <span className="relative inline-block">
+              {/* <span className="relative inline-block">
                 {user?.name?.split(" ")[0] || "Admin"}
                 <motion.span
                   initial={{ width: 0 }}
@@ -393,7 +393,7 @@ const OverviewPage = () => {
                   }}
                   className="absolute -bottom-1 left-0 h-3 bg-brand-accent/15 rounded-full -z-10"
                 />
-              </span>
+              </span> */}
             </motion.h1>
           </div>
         </div>
