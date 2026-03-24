@@ -312,7 +312,7 @@ export const createSupportApi = async (supportData) => {
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error.response.data.error || "Check Network Connection";
+    throw error.response.data.message || "Check Network Connection";
   }
 };
 

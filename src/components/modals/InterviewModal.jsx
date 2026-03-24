@@ -139,6 +139,7 @@ const InterviewModal = ({
 
   const handleClose = () => {
     onClose();
+    localStorage.removeItem("lastInterviewDetails");
     setTimeout(() => setIsSubmitted(false), 500);
   };
 
@@ -240,10 +241,20 @@ const InterviewModal = ({
           location: "",
           notes: "",
         });
+        localStorage.removeItem("lastInterviewDetails");
       } else {
         toast.error(response.message || "Failed to schedule interview");
       }
     } catch (error) {
+      setFormData({
+        date: "",
+        time: "",
+        mode: "Online", // Online or Offline
+        platform: "",
+        location: "",
+        notes: "",
+      });
+      localStorage.removeItem("lastInterviewDetails");
       console.error("Schedule Interview Error:", error);
       toast.error(error || "An error occurred");
     }

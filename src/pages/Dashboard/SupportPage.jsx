@@ -18,6 +18,7 @@ import {
   Link,
   Trash2,
   File,
+  FileText,
 } from "lucide-react";
 import {
   toggleSupportModal,
@@ -80,7 +81,8 @@ const SupportPage = () => {
   const handleSendReply = async (e) => {
     e.preventDefault();
 
-    if (!replyText.trim() || !activeTicketId) return;
+    if (!activeTicketId) return;
+    if (!replyText.trim() && !selectedFile) return;
 
     try {
       const formData = new FormData();
@@ -385,22 +387,18 @@ const SupportPage = () => {
                 {/* Messages Area */}
                 <div
                   ref={messagesContainerRef}
-                  className="flex-1 min-h-0 overflow-y-auto p-10 space-y-8 no-scrollbar bg-brand-primary/[0.01]"
+                  className="flex-1 min-h-0  overflow-y-auto p-10 space-y-8 no-scrollbar bg-brand-primary/[0.01]"
                 >
                   {activeTicket?.attachment && ticketAttachmentUrl && (
-                    <div className="relative group h-40 min-w-60 w-fit p-4 border rounded-xl mx-auto overflow-hidden">
-                      <img
-                        src={ticketAttachmentUrl}
-                        alt="attachment"
-                        className="h-full w-full object-cover rounded-lg"
-                      />
+                    <div className="relative flex gap-6 items-center group max-h-40 w-fit bg-gray-100 p-4 border rounded-xl mx-auto overflow-hidden">
+                      <div className="flex gap-2 items-center justify-center h-full w-full">
+                        <FileText size={24} className="text-brand-primary" />
+                        <p className="text-brand-primary text-sm font-bold">
+                          {activeTicket?.attachment}
+                        </p>
+                      </div>
 
-                      {/* Overlay */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-4 rounded-xl">
-                        {/* View Button */}
-                        <h2 className="text-white text-sm font-bold">
-                          Attachment
-                        </h2>
+                      <div className="transition-all duration-300 flex flex-col items-center justify-center gap-4 rounded-xl">
                         <div className="flex gap-4">
                           <button
                             onClick={() =>
@@ -414,7 +412,7 @@ const SupportPage = () => {
                           {/* Download Button */}
                           <a
                             href={ticketAttachmentUrl}
-                            download
+                            download={activeTicket?.attachment}
                             className="px-4 py-2 text-xs font-bold bg-brand-primary text-white rounded-lg hover:bg-brand-primary-light"
                           >
                             Download
@@ -426,16 +424,16 @@ const SupportPage = () => {
                   {messages.map((msg) => (
                     <div
                       key={msg.id}
-                      className={`flex items-start gap-5 ${!msg.isRepliedByAdmin ? "flex-row-reverse" : ""}`}
+                      className={`flex items-start gap-5 ${msg.isRepliedByAdmin ? "flex-row-reverse" : ""}`}
                     >
                       <div
                         className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-soft relative overflow-hidden ${
-                          !msg.isRepliedByAdmin
+                          msg.isRepliedByAdmin
                             ? "bg-linear-to-br from-brand-primary to-brand-primary-light text-white"
                             : "bg-white text-brand-primary"
                         }`}
                       >
-                        {!msg.isRepliedByAdmin ? (
+                        {msg.isRepliedByAdmin ? (
                           <User size={20} strokeWidth={2.5} />
                         ) : (
                           <LifeBuoy size={20} strokeWidth={2.5} />
@@ -443,11 +441,11 @@ const SupportPage = () => {
                         <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
                       </div>
                       <div
-                        className={`max-w-[70%] space-y-2 ${!msg.isRepliedByAdmin ? "text-right" : ""}`}
+                        className={`max-w-[70%] space-y-2 ${msg.isRepliedByAdmin ? "text-right" : ""}`}
                       >
                         <div
                           className={`p-6 rounded-[24px] break-words  max-w-100  text-sm font-bold leading-relaxed shadow-soft border ${
-                            !msg.isRepliedByAdmin
+                            msg.isRepliedByAdmin
                               ? "bg-brand-primary text-white border-brand-primary"
                               : "bg-white text-brand-primary/80 border-brand-primary/5"
                           }`}
@@ -458,7 +456,7 @@ const SupportPage = () => {
                               href={IMG_URL + "/" + msg.attachment}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={`flex ${!msg.isRepliedByAdmin ? "bg-white/20 text-white" : "bg-brand-primary text-white"} p-2 rounded-lg items-center gap-2 mt-2`}
+                              className={`flex ${msg.isRepliedByAdmin ? "bg-white/20 text-white" : "bg-brand-primary text-white"} p-2 rounded-lg items-center gap-2 mt-2`}
                             >
                               <File className="w-5 h-5" />
                               <span className="text-[9px] font-bold uppercase tracking-widest">
@@ -541,7 +539,7 @@ const SupportPage = () => {
 
                         <Button
                           onClick={handleSendReply}
-                          disabled={!replyText.trim()}
+                          disabled={activeTicket.status == "CLOSED" || (!selectedFile && !replyText.trim())}
                           className="rounded-xl px-6 py-3 h-auto shadow-premium bg-brand-primary hover:bg-brand-primary-light transition-all flex items-center gap-2 group/btn"
                         >
                           <span className="font-black uppercase tracking-widest text-[10px]">
