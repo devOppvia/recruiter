@@ -6,11 +6,14 @@ import Button from "../../components/Button";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { companySignInApi } from "../../helper/api";
+import { useCookies } from "react-cookie";
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [cookies, setCookie] = useCookies();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -51,6 +54,7 @@ const Login = () => {
         if (response.data.accessToken) {
           localStorage.setItem("token", response.data.accessToken);
           localStorage.setItem("accessToken", response.data.accessToken);
+          setCookie("refreshToken", response.data.refreshToken);
         }
 
         if (response.data.userData) {

@@ -14,68 +14,71 @@ import ProfilePage from "./pages/Dashboard/ProfilePage";
 import PublicRoute from "./routes/PublicRoute";
 import PrivateRoute from "./routes/PrivateRoute";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
+import { CookiesProvider } from "react-cookie";
 
 function App() {
   return (
-    <Routes>
-      {/* Auth Routes */}
-      <Route
-        path="/"
-        element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        }
-      />
-      <Route
-        path="/forgot-password"
-        element={
-          <PublicRoute>
-            <ForgotPassword />
-          </PublicRoute>
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          <PublicRoute>
-            <RegistrationWizard />
-          </PublicRoute>
-        }
-      />
-      <Route
-        path="/under-review"
-        element={
-          <PublicRoute>
-            <StatusPending />
-          </PublicRoute>
-        }
-      />
+    <CookiesProvider defaultSetOptions={{ path: "/" }}>
+      <Routes>
+        {/* Auth Routes */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <RegistrationWizard />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/under-review"
+          element={
+            <PublicRoute>
+              <StatusPending />
+            </PublicRoute>
+          }
+        />
 
-      {/* Dashboard Routes */}
+        {/* Dashboard Routes */}
 
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <DashboardLayout />
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<Navigate to="overview" replace />} />
-        <Route path="overview" element={<OverviewPage />} />
-        <Route path="overview-empty" element={<EmptyOverviewPage />} />
-        <Route path="jobs" element={<JobPostingPage />} />
-        <Route path="candidates" element={<CandidatesPage />} />
-        <Route path="resume-bank" element={<ComingSoonResumeBank />} />
-        <Route path="subscription" element={<SubscriptionPage />} />
-        <Route path="support" element={<SupportPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-      </Route>
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <DashboardLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<OverviewPage />} />
+          <Route path="overview-empty" element={<EmptyOverviewPage />} />
+          <Route path="jobs" element={<JobPostingPage />} />
+          <Route path="candidates" element={<CandidatesPage />} />
+          <Route path="resume-bank" element={<ComingSoonResumeBank />} />
+          <Route path="subscription" element={<SubscriptionPage />} />
+          <Route path="support" element={<SupportPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </CookiesProvider>
   );
 }
 
