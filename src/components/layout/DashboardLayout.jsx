@@ -634,7 +634,7 @@ const DashboardLayout = () => {
               </div>
               <button
                 onClick={toggleLayout}
-                className="flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold text-brand-primary/60 hover:bg-brand-primary/5 transition-all mt-2"
+                className="flex max-sm:hidden items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold text-brand-primary/60 hover:bg-brand-primary/5 transition-all mt-2"
               >
                 <PanelLeft size={20} />
                 Switch to Navbar
