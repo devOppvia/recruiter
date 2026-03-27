@@ -201,12 +201,12 @@ const DashboardLayout = () => {
     return (
       <>
         <SubscriptionAlert />
-        <div className="min-h-screen flex">
+        <div className="min-h-screen  flex">
           <motion.aside
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed left-0 top-0 bottom-0 w-64 z-50 flex flex-col bg-brand-primary shadow-2xl"
+            className="fixed max-sm:hidden left-0 top-0 bottom-0 w-64 z-50 flex flex-col bg-brand-primary shadow-2xl"
           >
             <div className="px-6 pt-8 pb-6 flex items-center gap-3 border-b border-white/10">
               <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shadow-soft shrink-0">
@@ -309,7 +309,7 @@ const DashboardLayout = () => {
             </div>
           </motion.aside>
 
-          <div className="flex-1 ml-64">
+          <div className="flex-1 max-sm:ml-0 ml-64">
             <div className="sticky top-0 z-40 px-6 py-3 flex items-center justify-between bg-white/40 backdrop-blur-md border-b border-white/60">
               <div className="flex items-center gap-2 text-[11px] font-bold tracking-tight">
                 <span className="text-brand-primary/40 uppercase tracking-widest">

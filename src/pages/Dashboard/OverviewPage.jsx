@@ -37,7 +37,7 @@ const MetricBar = ({
   color = "bg-brand-accent",
   delay = 0,
 }) => (
-  <div className="flex-1 min-w-[140px] group">
+  <div className="flex-1 min-w-[140px] max-sm:w-full group">
     <div className="flex justify-between items-end mb-2.5">
       <div className="flex items-center gap-2">
         {Icon && (
@@ -344,7 +344,7 @@ const OverviewPage = () => {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-10 w-full mx-auto pb-10 px-2 lg:px-4"
+      className="space-y-10 w-full mx-auto pb-10 px-2 lg:px-4 max-sm:p-0"
     >
       {/* Redesigned Header — Two Rows */}
       <motion.div variants={item} className="flex flex-col gap-6 py-6">
@@ -401,7 +401,7 @@ const OverviewPage = () => {
         {/* ROW 2: Metrics + Stats */}
         <div className="flex flex-wrap xl:flex-nowrap items-center gap-6">
           {/* Key Metrics Trackers */}
-          <div className="flex flex-wrap items-center gap-8 lg:gap-12 p-8 glass-morphism rounded-[48px] shadow-glass flex-1 border border-white/80 bg-white/30 backdrop-blur-2xl">
+          <div className="flex flex-wrap max-sm:flex-col  items-center gap-8 lg:gap-12 p-8 glass-morphism rounded-[48px] shadow-glass flex-1 border border-white/80 bg-white/30 backdrop-blur-2xl">
             <MetricBar
               label="Interviews"
               value={data?.creditsAndStats?.totalInterviews || 0}
@@ -462,12 +462,12 @@ const OverviewPage = () => {
           </div>
 
           {/* Summary Glass Cards */}
-          <div className="flex gap-4 sm:gap-5 overflow-x-auto pb-2 no-scrollbar scroll-smooth shrink-0">
+          <div className="flex gap-4 sm:gap-5 overflow-x-auto pb-2 no-scrollbar scroll-smooth max-sm:flex-wrap max-sm:w-[90vw] shrink-0">
             {data?.metrics?.map((stat, i) => (
               <motion.div
                 key={i}
                 whileHover={{ y: -5, scale: 1.02 }}
-                className="bg-white/60 border border-white/60 backdrop-blur-md rounded-3xl p-5 min-w-[120px] flex flex-col items-center justify-center text-center shadow-soft hover:shadow-glass hover:bg-white transition-all group"
+                className="bg-white/60 border border-white/60 backdrop-blur-md rounded-3xl p-5 min-w-[120px] max-sm:min-w-fit max-sm:w-[47.5%] flex flex-col items-center justify-center text-center hover:bg-white transition-all group"
               >
                 <div
                   className={`p-2.5 rounded-2xl bg-brand-primary/5 mb-3 group-hover:bg-brand-primary group-hover:text-white transition-colors `}
